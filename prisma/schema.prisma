@@ -15,10 +15,14 @@ datasource db {
 
 
 model user {
-  id        String   @id @default(cuid())
+  id        String    @id @unique @default(uuid())
+  userId    Int?      @unique @default(autoincrement())
   name      String
-  email     String   @unique
+  email     String    @unique
   password  String
+  role      String    @default("user")
+  city      String?
+  country   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

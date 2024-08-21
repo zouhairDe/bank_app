@@ -1,16 +1,36 @@
-import { prisma } from "../lib/prisma";
+"use client"
 
-export default async function Home() {
-  const user = await prisma.user.findUnique({
-    where: {
-      email: "zogamaouddach@gmail.com",
-    },
-  });
+import { useState, useEffect } from "react";
+
+export default function Home() {
+
+  const [userName, setUserName] = useState(null);
+
+  useEffect(() => {
+    getTable();
+  }, []);
+
+  const getTable = async () => {
+    try {
+      const msg = await fetch("/api/hello",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer",
+          },
+        }).then((res) => res.json());
+      console.log(msg);
+      setUserName(msg.name);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Hello {user?.name}</h1>
-      {/* <h1>{g}</h1> */} 
+      <button onClick={getTable}>Fetch tables</button>
+      {userName && <h1>Hello {userName}</h1>}
     </main>
   );
 }

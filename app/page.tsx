@@ -1,16 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function Home() {
-
+  const { data: session } = useSession();
   const [userName, setUserName] = useState(null);
 
-  useEffect(() => {
-    getTable();
-  }, []);
-
-  const getTable = async () => {
+  const getUser = async () => {
     try {
       const msg = await fetch("/api/hello",
         {
@@ -27,10 +24,28 @@ export default function Home() {
     }
   }
 
+
+  // function fff() {
+  //   fetch("/api", {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   }).then((res) => res.json()).then((data) => console.log(data));
+  // }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <button onClick={getTable}>Fetch tables</button>
-      {userName && <h1>Hello {userName}</h1>}
-    </main>
-  );
+    session ? (
+      <div>
+        <h1>Welcome to the home page</h1>
+        <p>Hi, {session.user?.name} {JSON.stringify(session)}</p>
+        <button className="" onClick={() => signOut()}>Sign out from github</button>
+      </div>
+    ) : (
+      <div className="flex w-full h-full items-center justify-center">
+        {/* <button onClick={fff}>delete default user</button> */}
+        <button className="" onClick={() => signIn("github")}>Sign in with github</button>
+      </div>
+    )
+  )
 }

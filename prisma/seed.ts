@@ -18,6 +18,7 @@ async function main() {
             password: hashPassword('seedAdmin'),
             country: 'Morocco',
             city: 'Casablanca',
+            provider: 'Manual',
         }
     })
     console.log('User created\n', user)

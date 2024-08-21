@@ -10,7 +10,7 @@ function hashPassword(password: string) {
 
 async function main() {
     const user = await prisma.user.upsert({
-        where: { email: 'zogamaouddach@gmail.com' },
+        where: { email: ''},
         update: {},
         create: {
             email: 'seedTest@gmail.com',
@@ -19,6 +19,9 @@ async function main() {
             country: 'Morocco',
             city: 'Casablanca',
             provider: 'Manual',
+            role: 'admin',
+            phoneNumber: '0606060606',
+            image: 'https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg'
         }
     })
     console.log('User created\n', user)

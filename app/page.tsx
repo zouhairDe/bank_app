@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function Home() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [userName, setUserName] = useState(null);
 
   const getUser = async () => {
@@ -34,6 +34,19 @@ export default function Home() {
   //   }).then((res) => res.json()).then((data) => console.log(data));
   // }
 
+  function ListUsers() {
+    fetch("/api", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res) => res.json()).then((data) => console.log(data));
+  }
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
   return (
     session ? (
       <div>
@@ -43,7 +56,8 @@ export default function Home() {
       </div>
     ) : (
       <div className="flex w-full h-full items-center justify-center">
-        {/* <button onClick={fff}>delete default user</button> */}
+        {/* <button onClick={fff}>delete users</button> */}
+        <button onClick={ListUsers}>List users</button>
         <button className="" onClick={() => signIn("github")}>Sign in with github</button>
       </div>
     )

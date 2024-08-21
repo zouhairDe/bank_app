@@ -3,13 +3,10 @@ import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
 
-  const cookie = cookies();// get the cookie from the request hadchi mnb3d ndirouh
+  // const cookie = cookies();// get the cookie from the request hadchi mnb3d ndirouh
   try {
-    const user = await prisma.user.findUnique({
-      where: {
-        email: "seedTest@gmail.com",
-      },
-    });
+    const user = await prisma.user.findMany();//to list all users
+    // const user = await prisma.user.deleteMany();//to delete all users
     return Response.json(user, {
       status: 200,
       headers: {

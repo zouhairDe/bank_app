@@ -1,8 +1,20 @@
-import { NextAuthOptions } from "next-auth";
+
+import { NextAuthOptions, Session, User } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import FortyTwoProvider from "next-auth/providers/42-school";
 import { prisma } from "./prisma";
+
+interface ExtendedSession extends Session {
+    user: {
+      id: string;
+      role: string;
+      email?: string | null;
+      name?: string | null;
+      image?: string | null;
+    };
+  }
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -42,20 +54,20 @@ export const authOptions: NextAuthOptions = {
           await prisma.user.create({
             data: {
               email: email,
-              name: name || "Unknown User", // Set a default name if name is null or undefined
+              name: name || "Unknown User",
               password: "", // Leave password empty for OAuth users
               role: "user",
-              provider: provider, // Store the provider name
+              provider: provider || "email", // Store the provider name
               city: null,
               country: null,
-              createdAt: new Date(),
-              updatedAt: new Date(),
+              image: image || "",
+              phoneNumber: "",
             },
           });
           console.log("User added to the database.");   
         }
         else
-            console.log("User already exist.");   
+            console.log("User already exist.");
 
         // Continue with the sign-in process
         return true;
@@ -64,5 +76,28 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
+    async session({ session, token }: { session: Session; token: JWT }) {
+        // Fetch additional data from your database
+        const dbUser = await prisma.user.findUnique({
+          where: { email: session.user?.email as string},
+        });
+  
+        if (dbUser) {
+          // Type assertion to extend session
+          const extendedSession = session as ExtendedSession;
+  
+          // Add custom properties to the session object
+          extendedSession.user.id = dbUser.id;
+          extendedSession.user.role = dbUser.role;
+          extendedSession.user.email = dbUser.email;
+          extendedSession.user.name = dbUser.name;
+          extendedSession.user.image = dbUser.image || '';
+  
+          console.log("Extended session:", extendedSession);
+          return extendedSession;
+        }
+  
+        return session;
+      },
   },
 };

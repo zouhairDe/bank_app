@@ -31,7 +31,7 @@ const Home = () => {
   if (status === "loading" || status === "unauthenticated") {
     return <Loading />;
   }
-
+console.log(session)
   const DefImage = "https://w7.pngwing.com/pngs/831/88/png-transparent-user-profile-computer-icons-user-interface-mystique-miscellaneous-user-interface-design-smile-thumbnail.png"
 
   return (
@@ -41,13 +41,11 @@ const Home = () => {
       <p>Your image:</p>
       <img
         className="w-40 h-40 rounded-lg"
-        src={session?.user?.image as string || DefImage}
+        src={session?.user?.image || DefImage}
         alt="userImage"
       />
       <p>Your email:</p>
       <p>{session?.user?.email}</p>
-      {/* <p>Your id:</p>
-      <p>{session?.user?.id}</p> */}
 
       <button onClick={ListUsers}>LIST USERS</button>
     </div>

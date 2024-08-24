@@ -177,7 +177,7 @@ export const authOptions: NextAuthOptions = {
 				extendedSession.user.phoneNumber = dbUser.phoneNumber || '';
 				// extendedSession.user.location = dbUser.location || '';
 
-				console.log("Extended session:", extendedSession);
+				// console.log("Extended session:", extendedSession);
 				return extendedSession;
 			}
 

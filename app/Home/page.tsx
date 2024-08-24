@@ -26,12 +26,10 @@ const Home = () => {
       .then((data) => console.log(data));
   }
 
-  console.log(session);
-
   if (status === "loading" || status === "unauthenticated") {
     return <Loading />;
   }
-console.log(session)
+  
   const DefImage = "https://w7.pngwing.com/pngs/831/88/png-transparent-user-profile-computer-icons-user-interface-mystique-miscellaneous-user-interface-design-smile-thumbnail.png"
 
   return (

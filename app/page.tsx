@@ -111,7 +111,7 @@ export default function Home() {
 	function validateEmail(email: string) {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		return emailRegex.test(email);
-	  }
+	}
 
 	const handleOAuthSignIn = async (provider: string) => {
 		if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
@@ -159,7 +159,7 @@ export default function Home() {
 	return (
 		<div className="w-full h-screen flex items-center justify-center bg-[#28273f]">
 			<ToastContainer />
-			<div className="bg-white rounded-3xl shadow-lg p-8 max-w-xl items-center justify-center w-full flex gap-8 h-[60%] flex-col">
+			<div className="bg-[#F0ECE5] rounded-3xl shadow-lg p-8 max-w-xl items-center justify-center w-full flex gap-8 h-[60%] flex-col">
 				<div className="flex h-[45%] w-[90%] gap-6 mt-12">
 					<div className="flex-1">
 						<h1 className="text-4xl font-bold mb-4 text-[#28273f]">Welcome back, {"{user}"}!</h1>
@@ -181,23 +181,6 @@ export default function Home() {
 							onChange={(e) => setPassword(e.target.value)}
 							className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
 						/>
-
-						<div className="fixed bottom-0 right-0 p-4">
-							<button
-								onClick={handleSignIn}
-								className={`bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ${loading ? 'cursor-not-allowed' : ''}`}
-								disabled={loading}
-							>
-								Login
-							</button>
-							<button
-								onClick={handleSignUp}
-								className={`bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 ${loading ? 'cursor-not-allowed' : ''}`}
-								disabled={loading}
-							>
-								Sign Up
-							</button>
-						</div>
 					</div>
 				</div>
 				<div className="flex-1 gap-8 mb-4 w-[90%]">
@@ -212,6 +195,22 @@ export default function Home() {
 						<button onClick={() => handleOAuthSignIn("42-school")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><Si42 className="h-10 w-10" /></button>
 					</div>
 				</div>
+			</div>
+			<div className="flex flex-col fixed bottom-0 right-0 p-0 m-0 gap-0">
+				<button
+					onClick={handleSignUp}
+					className={`w-60 translate-x-24 pr-16 translate-y-10 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] pb-8 pt-6 rounded-full hover:bg-green-600 ${loading ? 'cursor-not-allowed' : ''}`}
+					disabled={loading}
+				>
+					Sign Up
+				</button>
+				<button
+					onClick={handleSignIn}
+					className={`w-60 translate-x-16 translate-y-4 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] py-8 rounded-full m-0 hover:bg-blue-600 ${loading ? 'cursor-not-allowed' : ''}`}
+					disabled={loading}
+				>
+					Login
+				</button>
 			</div>
 		</div>
 	);

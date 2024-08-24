@@ -16,6 +16,7 @@ export default function Home() {
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [toastId, setToastId] = useState(null);
+	const [isSignUp, setIsSignUp] = useState(false);
 
 	const handleSignIn = async () => {
 		if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
@@ -156,60 +157,107 @@ export default function Home() {
 		return <Loading />;
 	}
 
-	return (
-		<div className="w-full h-screen flex items-center justify-center bg-[#28273f]">
-			<ToastContainer />
-			<div className="bg-[#F0ECE5] rounded-3xl shadow-lg p-8 max-w-xl items-center justify-center w-full flex gap-8 h-[60%] flex-col">
-				<div className="flex h-[45%] w-[90%] gap-6 mt-12">
-					<div className="flex-1">
-						<h1 className="text-4xl font-bold mb-4 text-[#28273f]">Welcome back, {"{user}"}!</h1>
-					</div>
-
-					<div className="flex-1">
-						<input
-							type="email"
-							placeholder="Email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
-						/>
-
-						<input
-							type="password"
-							placeholder="Password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
-						/>
-					</div>
+	const LoginForm = (
+		<div className="bg-[#F0ECE5] rounded-3xl shadow-lg p-8 max-w-xl items-center justify-center w-full flex gap-8 h-[60%] flex-col">
+			<div className="flex h-[45%] w-[90%] gap-6 mt-12">
+				<div className="flex-1">
+					<h1 className="text-4xl font-bold mb-4 text-[#28273f]">Welcome back, {"{user}"}!</h1>
 				</div>
-				<div className="flex-1 gap-8 mb-4 w-[90%]">
-					<div className="text-[#28273f] grid grid-cols-3 items-center w-full -translate-y-8">
-						<hr className="border-[#28273f] border-2 rounded-2xl" />
-						<p className="text-center font-bold text-lg"> Or </p>
-						<hr className="border-[#28273f] border-2 rounded-2xl" />
-					</div>
-					<div className="flex items-center justify-center gap-10">
-						<button onClick={() => handleOAuthSignIn("github")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><BsGithub className="h-10 w-10" /></button>
-						<button onClick={() => handleOAuthSignIn("google")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><BsGoogle className="h-10 w-10" /></button>
-						<button onClick={() => handleOAuthSignIn("42-school")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><Si42 className="h-10 w-10" /></button>
+
+				<div className="flex-1">
+					<input
+						type="email"
+						placeholder="Email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
+					/>
+
+					<input
+						type="password"
+						placeholder="Password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
+					/>
+				</div>
+			</div>
+			<div className="flex-1 gap-8 mb-4 w-[90%]">
+				<div className="text-[#28273f] grid grid-cols-3 items-center w-full -translate-y-8">
+					<hr className="border-[#28273f] border-2 rounded-2xl" />
+					<p className="text-center font-bold text-lg"> Or </p>
+					<hr className="border-[#28273f] border-2 rounded-2xl" />
+				</div>
+				<div className="flex items-center justify-center gap-10">
+					<button onClick={() => handleOAuthSignIn("github")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><BsGithub className="h-10 w-10" /></button>
+					<button onClick={() => handleOAuthSignIn("google")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><BsGoogle className="h-10 w-10" /></button>
+					<button onClick={() => handleOAuthSignIn("42-school")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><Si42 className="h-10 w-10" /></button>
+				</div>
+			</div>
+		</div>
+	);
+
+	const SignUpForm = (
+		<div className="bg-[#F0ECE5] rounded-3xl shadow-lg p-8 max-w-[620px] items-center justify-center w-full flex gap-8 h-[60%] flex-col">
+			<div className="flex h-[45%] w-[100%] gap-6 font-bold items-center justify-center">
+				<div className="flex-1">
+					<h1 className="text-4xl font-bold mb-4 text-[#28273f]">New here?!</h1>
+					<h2 className="text-2xl text-[#28273f]">Become a member today for only $9.99!</h2>
+				</div>
+
+				<div className="flex-1">
+					<input
+						type="email"
+						placeholder="Email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
+					/>
+
+					<input
+						type="password"
+						placeholder="Password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
+					/>
+
+					<div className="flex-1 gap-8 mb-4 w-[90%] mt-10">
+						<div className="text-[#28273f] grid grid-cols-3 items-center w-full -translate-y-8">
+							<hr className="border-[#28273f] border-2 rounded-2xl" />
+							<p className="text-center font-bold text-lg"> Or </p>
+							<hr className="border-[#28273f] border-2 rounded-2xl" />
+						</div>
+						<div className="flex items-center justify-center gap-10">
+							<button onClick={() => handleOAuthSignIn("github")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><BsGithub className="h-10 w-10" /></button>
+							<button onClick={() => handleOAuthSignIn("google")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><BsGoogle className="h-10 w-10" /></button>
+							<button onClick={() => handleOAuthSignIn("42-school")} className={`${loading ? 'cursor-not-allowed' : ''}`} disabled={loading}><Si42 className="h-10 w-10" /></button>
+						</div>
 					</div>
 				</div>
 			</div>
-			<div className="flex flex-col fixed bottom-0 right-0 p-0 m-0 gap-0">
+		</div>
+	);
+
+
+	return (
+		<div className="w-full h-screen flex items-center justify-center bg-[#28273f]">
+			<ToastContainer />
+			{isSignUp ? SignUpForm : LoginForm}
+			<div className={`flex flex-col fixed bottom-0 ${!isSignUp ? "right-0" : "left-0"}`}>
 				<button
-					onClick={handleSignUp}
-					className={`w-60 translate-x-24 pr-16 translate-y-10 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] pb-8 pt-6 rounded-full hover:bg-green-600 ${loading ? 'cursor-not-allowed' : ''}`}
+					onClick={() => setIsSignUp(!isSignUp)}
+					className={`w-60 ${!isSignUp ? "translate-x-24 pr-16 translate-y-10" : "-translate-x-24 pl-16 translate-y-10"} pb-8 pt-6 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] rounded-full hover:bg-green-600 ${loading ? 'cursor-not-allowed' : ''}`}
 					disabled={loading}
 				>
-					Sign Up
+					{(isSignUp ? "Or Login?" : "Or Register?")}
 				</button>
 				<button
-					onClick={handleSignIn}
-					className={`w-60 translate-x-16 translate-y-4 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] py-8 rounded-full m-0 hover:bg-blue-600 ${loading ? 'cursor-not-allowed' : ''}`}
+					onClick={!isSignUp ? handleSignIn : handleSignUp}
+					className={`w-60 ${!isSignUp ? "translate-x-16 translate-y-4" : "-translate-x-16 translate-y-4"} font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] py-8 rounded-full m-0 hover:bg-blue-600 ${loading ? 'cursor-not-allowed' : ''}`}
 					disabled={loading}
 				>
-					Login
+					{(isSignUp ? "Register" : "Login")}
 				</button>
 			</div>
 		</div>

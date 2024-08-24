@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { BsGoogle, BsGithub } from "react-icons/bs";
 import { Si42 } from "react-icons/si";
 import Loading from "@/ui/Loading";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { motion, AnimatePresence } from "framer-motion";
+import { PiEyeClosedBold, PiEyeBold } from "react-icons/pi";
+
 
 export default function Home() {
 	const { data: session, status } = useSession();
@@ -17,6 +20,14 @@ export default function Home() {
 	const [loading, setLoading] = useState(false);
 	const [toastId, setToastId] = useState(null);
 	const [isSignUp, setIsSignUp] = useState(false);
+	const [onPassword, setOnPassword] = useState(false);
+
+	const buttonVariants = {
+		initial: { scale: 1, rotate: 0 },
+		hover: { scale: 1.1, rotate: 10 },
+		click: { scale: 0.9, rotate: -10 },
+	};
+
 
 	const handleSignIn = async () => {
 		if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
@@ -56,7 +67,7 @@ export default function Home() {
 	};
 
 	const handleSignUp = async () => {
-		if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
+		if (loading || toast.isActive((toastId))) return; // Prevent multiple clicks and new toasts if one is already active
 		setLoading(true);
 
 		toast.dismiss(); // Dismiss any existing toasts
@@ -159,9 +170,9 @@ export default function Home() {
 
 	const LoginForm = (
 		<div className="bg-[#F0ECE5] rounded-3xl shadow-lg p-8 max-w-xl items-center justify-center w-full flex gap-8 h-[60%] flex-col">
-			<div className="flex h-[45%] w-[90%] gap-6 mt-12">
+			<div className="flex h-[45%] w-[90%] gap-6 mt-12 font-bold">
 				<div className="flex-1">
-					<h1 className="text-4xl font-bold mb-4 text-[#28273f]">Welcome back, {"{user}"}!</h1>
+					<strong className="text-4xl font-bold mb-4 text-[#28273f]">Welcome back, {"{user}"}!</strong>
 				</div>
 
 				<div className="flex-1">
@@ -173,13 +184,25 @@ export default function Home() {
 						className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
 					/>
 
-					<input
-						type="password"
-						placeholder="Password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
-					/>
+					<div className="relative">
+						<input
+							type={onPassword ? "text" : "password"}
+							placeholder="Password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500 pr-10" // Add padding-right to avoid overlap
+						/>
+						<button
+							className="absolute right-2 top-[50%] transform translate-y-[-75%] rounded-full"
+							onClick={() => setOnPassword(!onPassword)}
+						>
+							{onPassword ? (
+								<PiEyeBold className="h-8 w-8" />
+							) : (
+								<PiEyeClosedBold className="h-8 w-8" />
+							)}
+						</button>
+					</div>
 				</div>
 			</div>
 			<div className="flex-1 gap-8 mb-4 w-[90%]">
@@ -198,14 +221,14 @@ export default function Home() {
 	);
 
 	const SignUpForm = (
-		<div className="bg-[#F0ECE5] rounded-3xl shadow-lg p-8 max-w-[620px] items-center justify-center w-full flex gap-8 h-[60%] flex-col">
+		<div className="bg-[#F0ECE5] rounded-3xl shadow-lg p-8 max-w-[620px] items-center justify-center w-full flex gap-8 h-[70%] flex-col">
 			<div className="flex h-[45%] w-[100%] gap-6 font-bold items-center justify-center">
 				<div className="flex-1">
-					<h1 className="text-4xl font-bold mb-4 text-[#28273f]">New here?!</h1>
+					<strong className="text-4xl mb-4 text-[#28273f]">New here?!</strong>
 					<h2 className="text-2xl text-[#28273f]">Become a member today for only $9.99!</h2>
 				</div>
 
-				<div className="flex-1">
+				<div className="flex-1 my-6">
 					<input
 						type="email"
 						placeholder="Email"
@@ -214,13 +237,26 @@ export default function Home() {
 						className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
 					/>
 
-					<input
-						type="password"
-						placeholder="Password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500"
-					/>
+					<div className="relative">
+						<input
+							type={onPassword ? "text" : "password"}
+							placeholder="Password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500 pr-10" // Add padding-right to avoid overlap
+						/>
+						<button
+							className="absolute right-2 top-[50%] transform translate-y-[-75%] rounded-full"
+							onClick={() => setOnPassword(!onPassword)}
+						>
+							{onPassword ? (
+								<PiEyeBold className="h-8 w-8" />
+							) : (
+								<PiEyeClosedBold className="h-8 w-8" />
+							)}
+						</button>
+					</div>
+
 
 					<div className="flex-1 gap-8 mb-4 w-[90%] mt-10">
 						<div className="text-[#28273f] grid grid-cols-3 items-center w-full -translate-y-8">
@@ -243,26 +279,52 @@ export default function Home() {
 	return (
 		<div className="w-full h-screen flex items-center justify-center bg-[#28273f]">
 			<ToastContainer />
-			{isSignUp ? SignUpForm : LoginForm}
-			<div className={`flex flex-col fixed bottom-0 ${!isSignUp ? "right-0" : "left-0"}`}>
+			<AnimatePresence mode="wait">
+				{isSignUp ? (
+					<motion.div
+						key="signUp"
+						initial={{ opacity: 0, x: -100 }}
+						animate={{ opacity: 1, x: 0 }}
+						exit={{ opacity: 0, x: 100 }}
+						transition={{ duration: 0.5 }}
+					>
+						{SignUpForm}
+					</motion.div>
+				) : (
+					<motion.div
+						key="login"
+						initial={{ opacity: 0, x: 100 }}
+						animate={{ opacity: 1, x: 0 }}
+						exit={{ opacity: 0, x: -100 }}
+						transition={{ duration: 0.5 }}
+					>
+						{LoginForm}
+					</motion.div>
+				)}
+			</AnimatePresence>
+
+			<motion.div
+				className={`flex flex-col fixed bottom-0 ${!isSignUp ? "right-0" : "left-0"}`}
+				variants={buttonVariants}
+				initial="initial"
+				whileHover="hover"
+				whileTap="click"
+			>
 				<button
 					onClick={() => setIsSignUp(!isSignUp)}
-					className={`w-60 ${!isSignUp ? "translate-x-24 pr-16 translate-y-10" : "-translate-x-24 pl-16 translate-y-10"} pb-8 pt-6 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] rounded-full hover:bg-green-600 ${loading ? 'cursor-not-allowed' : ''}`}
+					className={`w-60 ${!isSignUp ? "translate-x-24 pr-16 translate-y-10" : "-translate-x-24 pl-16 translate-y-10"} pb-8 pt-6 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] rounded-full hover:bg-[#e2e0dc] ${loading ? 'cursor-not-allowed' : ''}`}
 					disabled={loading}
 				>
-					{(isSignUp ? "Or Login?" : "Or Register?")}
+					{isSignUp ? "Or Login?" : "Or Register?"}
 				</button>
 				<button
 					onClick={!isSignUp ? handleSignIn : handleSignUp}
-					className={`w-60 ${!isSignUp ? "translate-x-16 translate-y-4" : "-translate-x-16 translate-y-4"} font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] py-8 rounded-full m-0 hover:bg-blue-600 ${loading ? 'cursor-not-allowed' : ''}`}
+					className={`w-60 ${!isSignUp ? "translate-x-16 translate-y-4" : "-translate-x-16 translate-y-4"} font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] py-8 rounded-full m-0 hover:bg-[#e2e0dc] ${loading ? 'cursor-not-allowed' : ''}`}
 					disabled={loading}
 				>
-					{(isSignUp ? "Register" : "Login")}
+					{isSignUp ? "Register" : "Login"}
 				</button>
-			</div>
+			</motion.div>
 		</div>
 	);
 }
-
-
-//kffk

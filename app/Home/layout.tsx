@@ -25,7 +25,9 @@ const Layout = ({
 			<Loading />
 		) : (
 			<div className="flex h-screen w-full">
-				<SideNav />
+				<div className="w-20 bg-gray-900 text-white">
+					<SideNav />
+				</div>
 				<main className="flex-grow bg-[#28273f] p-4">{children}</main>
 			</div>
 		)

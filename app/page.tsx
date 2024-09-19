@@ -60,9 +60,7 @@ export default function Home() {
 				isLoading: false,
 				autoClose: 5000,
 			});
-			setTimeout(() => {
-				router.push("/Home");
-			}, 3000);
+			router.push("/Home");
 		}
 	};
 

@@ -6,6 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import FortyTwoProvider from "next-auth/providers/42-school";
 import { prisma } from "./prisma";
 import bcrypt from 'bcrypt';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
 interface ExtendedSession extends Session {
 	user: {
@@ -67,6 +68,7 @@ export const authOptions: NextAuthOptions = {
 			},
 		  }),
 	],
+	// adapter: PrismaAdapter(prisma),
 	callbacks: {
 		async signIn({ user, account }) {
 			async function fetchGoogleUserData(accessToken: string) {
@@ -148,7 +150,7 @@ export const authOptions: NextAuthOptions = {
 							country: null,
 							image: userData?.image,
 							phoneNumber: userData?.phoneNumber || "",
-							// location: userData?.location || "",
+							location: userData?.location || "Morocco",
 						},
 					});
 					console.log("User added to the database.");
@@ -175,7 +177,7 @@ export const authOptions: NextAuthOptions = {
 				extendedSession.user.name = dbUser.name;
 				extendedSession.user.image = dbUser.image || '';
 				extendedSession.user.phoneNumber = dbUser.phoneNumber || '';
-				// extendedSession.user.location = dbUser.location || '';
+				extendedSession.user.location = dbUser.location || '';
 
 				// console.log("Extended session:", extendedSession);
 				return extendedSession;

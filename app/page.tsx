@@ -31,6 +31,23 @@ export default function Home() {
   const handleSignIn = async () => {
     if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
     setLoading(true);
+	if (result?.error) {
+		toast.update(newToastId, {
+			render: result.error,
+			type: "error",
+			isLoading: false,
+			autoClose: 5000,
+		});
+		setLoading(false);
+	} else {
+		toast.update(newToastId, {
+			render: "Signed in successfully!",
+			type: "success",
+			isLoading: false,
+			autoClose: 5000,
+		});
+		router.push("/Home");
+	}
 
     toast.dismiss(); // Dismiss any existing toasts
     const newToastId = toast.loading("Signing in...", {

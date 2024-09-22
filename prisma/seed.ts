@@ -10,7 +10,7 @@ function hashPassword(password: string) {
 
 async function main() {
     const user = await prisma.user.upsert({
-        where: { email: ''},
+        where: { email: 'seedTest@gmail.com'},
         update: {},
         create: {
             email: 'seedTest@gmail.com',
@@ -25,8 +25,46 @@ async function main() {
         }
     })
     console.log('User created\n', user)
-}
+	
+	const userId = user.userId; 
 
+	if (userId === null) {
+	  throw new Error("User ID is null, cannot create post.");
+	}
+	
+	const post = await prisma.posts.upsert({
+	  where: {
+	    id: 'seed-post-id',
+	  },
+	  create: {
+	    content: 'Hello world',
+	    isApproved: true,
+	    userId: userId as number,
+	  },
+	  update: {
+	    content: 'Updated content',
+	    isApproved: true,
+	  },
+	});
+	console.log('Post created\n', post);
+	
+	const post2 = await prisma.posts.upsert({
+		where: {
+			id: 'seed-post-id-2',
+		},
+		create: {
+			content: 'Hello world 2',
+			isApproved: true,
+			userId: userId as number,
+		},
+		update: {
+			content: 'Updated content 2',
+			isApproved: true,
+		},
+	});
+	console.log('Post2 created\n', post2);
+}
+	
 main()
     .then(() => prisma.$disconnect())
     .catch( async (e) => {

@@ -25,7 +25,33 @@ model user {
   country     String?
   phoneNumber String?
   image       String?
+  location    String?
   provider    String    @default("email")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  posts       posts[]
+  isBanned	Boolean   @default(false)
+}
+
+model posts {
+	id			String		@id @unique @default(uuid())
+	userId		Int
+	content		String
+	createdAt	DateTime	@default(now())
+	upvotes		Int			@default(0)
+	downvotes	Int			@default(0)
+	isApproved	Boolean		@default(false)
+	isDeleted	Boolean		@default(false)
+	user		user		@relation(fields: [userId], references: [userId])
+	votes		votes[]
+	
+}
+
+model votes {
+    id       Int    @id @default(autoincrement())
+    postId   String
+    userId   Int
+    voteType String // 'upvote' or 'downvote'
+    post     posts  @relation(fields: [postId], references: [id])
+    @@unique([postId, userId, voteType])
 }

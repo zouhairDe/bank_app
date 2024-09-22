@@ -1,10 +1,11 @@
 import { signOut } from 'next-auth/react';
 import React from 'react';
-import { FaUser, FaGamepad, FaSignOutAlt } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { IoIosCreate } from "react-icons/io";
 
 const SideNav = () => {
 	return (
-		<div className="grid grid-rows-3 h-screen w-20 bg-gray-900 text-black">
+		<div className="grid grid-rows-3 h-screen w-20 bg-gray-900 ">
 			{/* Top Section: Prpfile button */}
 			<div className="flex items-center justify-center">
 				<FaUser className="text-2xl" />
@@ -12,7 +13,7 @@ const SideNav = () => {
 
 			{/* Middle Section: hhh dakchi li ghandirou f site button */}
 			<div className="flex items-center justify-center">
-				<FaGamepad className="text-2xl" />
+				<IoIosCreate className="text-2xl" />
 			</div>
 
 			{/* Bottom Section:setting and logout */}

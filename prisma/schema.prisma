@@ -30,6 +30,8 @@ model user {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   posts       posts[]
+  upVotes	  String[]
+  downVotes	  String[]
   isBanned	Boolean   @default(false)
 }
 
@@ -38,20 +40,9 @@ model posts {
 	userId		Int
 	content		String
 	createdAt	DateTime	@default(now())
-	upvotes		Int			@default(0)
-	downvotes	Int			@default(0)
+	upvotes		String[]
+	downvotes	String[]
 	isApproved	Boolean		@default(false)
 	isDeleted	Boolean		@default(false)
-	user		user		@relation(fields: [userId], references: [userId])
-	votes		votes[]
-	
-}
-
-model votes {
-    id       Int    @id @default(autoincrement())
-    postId   String
-    userId   Int
-    voteType String // 'upvote' or 'downvote'
-    post     posts  @relation(fields: [postId], references: [id])
-    @@unique([postId, userId, voteType])
+	user		user		@relation(fields: [userId], references: [userId])	
 }

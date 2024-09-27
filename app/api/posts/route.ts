@@ -23,7 +23,6 @@ export async function GET(request: Request) {
 			createdAt: 'desc',
 		},
 		where: {
-			userId: 27,
 			isApproved: true,
 		},
 	});

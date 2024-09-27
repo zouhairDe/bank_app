@@ -24,8 +24,6 @@ const Home = () => {
 	const [hasMore, setHasMore] = useState(true);
 	const [postsNumber, setPostsNumber] = useState(10);
 	const [loading, setLoading] = useState(false);
-	const [upVotedPosts, setUpVotedPosts] = useState(false);
-	const [downVotedPosts, setDownVotedPosts] = useState(false);
 
 	useEffect(() => {
 		if (status === "unauthenticated") {
@@ -89,45 +87,29 @@ const Home = () => {
 	}
 	
 	const handleVote = async (postId: string, type: 'upvote' | 'downvote', action: 'increment' | 'decrement') => {
-		if (type === 'upvote') {
-			if (upVotedPosts) {
-				// Already upvoted
-				return;
-			}
-			if (downVotedPosts) {
-				// Undo downvote
-				setDownVotedPosts(false);
-				await handleVote(postId, 'downvote', 'increment');
-			}
-			setUpVotedPosts(true);
-		} else if (type === 'downvote') {
-			if (downVotedPosts) {
-				// Already downvoted
-				return;
-			}
-			if (upVotedPosts) {
-				// Undo upvote
-				setUpVotedPosts(false);
-				await handleVote(postId, 'upvote', 'increment');
-			}
-			setDownVotedPosts(true);
-		}
-	
 		try {
 			const response = await fetch(`/api/votes?postId=${postId}&type=${type}`, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ action }),
+				body: JSON.stringify({ action, userId: session?.user?.id }),
 			});
-			const data: Post = await response.json();
-			setPosts((prevPosts) => prevPosts.map((post) => (post.id === postId ? data : post)));
+			
+			const data = await response.json();
+	
+			// Update the post's upvotes and downvotes with the new values from the response
+			setPosts((prevPosts) =>
+				prevPosts.map((post) =>
+					post.id === postId
+						? { ...post, upvotes: data.upvotes, downvotes: data.downvotes }
+						: post
+				)
+			);
 		} catch (error) {
 			console.error("Error voting post:", error);
 		}
-	}
-	
+	};
 	
 
 	return (

@@ -31,56 +31,44 @@ export default function Home() {
   const handleSignIn = async () => {
     if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
     setLoading(true);
-	if (result?.error) {
-		toast.update(newToastId, {
-			render: result.error,
-			type: "error",
-			isLoading: false,
-			autoClose: 5000,
-		});
-		setLoading(false);
-	} else {
-		toast.update(newToastId, {
-			render: "Signed in successfully!",
-			type: "success",
-			isLoading: false,
-			autoClose: 5000,
-		});
-		router.push("/Home");
-	}
-
+  
     toast.dismiss(); // Dismiss any existing toasts
     const newToastId = toast.loading("Signing in...", {
       position: "top-right",
     });
     setToastId(newToastId);
-
+  
     const result = await signIn("credentials", {
       redirect: false,
       email,
       password,
     });
-
+  
     if (result?.error) {
+      // Update the toast with an error message
       toast.update(newToastId, {
-        render: result.error,
+        render: "Error signing in",
         type: "error",
         isLoading: false,
         autoClose: 5000,
       });
       setLoading(false);
     } else {
+      // Update the toast with a success message
       toast.update(newToastId, {
         render: "Signed in successfully!",
         type: "success",
         isLoading: false,
         autoClose: 5000,
       });
+  
+      // Redirect to the home page after a short delay
       setTimeout(() => {
         router.push("/Home");
       }, 3000);
     }
   };
+  
 
   const handleSignUp = async () => {
     if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
@@ -350,9 +338,8 @@ export default function Home() {
       </AnimatePresence>
 
       <motion.div
-        className={`flex flex-col fixed bottom-0 ${
-          !isSignUp ? "right-0" : "left-0"
-        }`}
+        className={`flex flex-col fixed bottom-0 ${!isSignUp ? "right-0" : "left-0"
+          }`}
         variants={buttonVariants}
         initial="initial"
         whileHover="hover"
@@ -360,26 +347,22 @@ export default function Home() {
       >
         <button
           onClick={() => setIsSignUp(!isSignUp)}
-          className={`w-60 ${
-            !isSignUp
+          className={`w-60 ${!isSignUp
               ? "translate-x-24 pr-16 translate-y-10"
               : "-translate-x-24 pl-16 translate-y-10"
-          } pb-8 pt-6 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] rounded-full hover:bg-[#e2e0dc] ${
-            loading ? "cursor-not-allowed" : ""
-          }`}
+            } pb-8 pt-6 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] rounded-full hover:bg-[#e2e0dc] ${loading ? "cursor-not-allowed" : ""
+            }`}
           disabled={loading}
         >
           {isSignUp ? "Or Login?" : "Or Register?"}
         </button>
         <button
           onClick={!isSignUp ? handleSignIn : handleSignUp}
-          className={`w-60 ${
-            !isSignUp
+          className={`w-60 ${!isSignUp
               ? "translate-x-16 translate-y-4"
               : "-translate-x-16 translate-y-4"
-          } font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] py-8 rounded-full m-0 hover:bg-[#e2e0dc] ${
-            loading ? "cursor-not-allowed" : ""
-          }`}
+            } font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] py-8 rounded-full m-0 hover:bg-[#e2e0dc] ${loading ? "cursor-not-allowed" : ""
+            }`}
           disabled={loading}
         >
           {isSignUp ? "Register" : "Login"}

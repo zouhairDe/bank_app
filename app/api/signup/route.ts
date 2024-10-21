@@ -37,8 +37,6 @@ export async function POST(request: Request) {
         password: hashedPassword,
         role: "user",
         provider: "email",
-        city: null,
-        country: null,
         image: "",
         phoneNumber: "",
       },

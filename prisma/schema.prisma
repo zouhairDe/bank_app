@@ -13,36 +13,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-model user {
-  id          String    @id @unique @default(uuid())
-  userId      Int?      @unique @default(autoincrement())
-  name        String
-  email       String    @unique
-  password    String
-  role        String    @default("user")
-  city        String?
-  country     String?
-  phoneNumber String?
-  image       String?
-  location    String?
-  provider    String    @default("email")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  posts       posts[]
-  upVotes	  String[]
-  downVotes	  String[]
-  isBanned	Boolean   @default(false)
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
+  role          String         @default("user")
+  phoneNumber   String?
+  image         String?
+  location      String?
+  provider      String         @default("email")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  balance       Float          @default(0.0)
+  isBanned      Boolean        @default(false)
+  isVerified    Boolean        @default(false)
+  creditCards   CreditCard[]   // Relation field
+  transactions  Transaction[]  // Relation field
 }
 
-model posts {
-	id			String		@id @unique @default(uuid())
-	userId		Int
-	content		String
-	createdAt	DateTime	@default(now())
-	upvotes		String[]
-	downvotes	String[]
-	isApproved	Boolean		@default(false)
-	isDeleted	Boolean		@default(false)
-	user		user		@relation(fields: [userId], references: [userId])	
+model CreditCard {
+  id              String    @id @default(uuid()) // Primary key
+  holder          String
+  number          String    @unique
+  cvv             String
+  expirationDate  DateTime
+  isBlocked       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  ownerId         String    // Foreign key
+  user            User      @relation(fields: [ownerId], references: [id], onDelete: Cascade) // Relation field
+}
+
+model Transaction {
+  id          String    @id @default(uuid())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String    // Foreign key
+  amount      Float
+  receiverId  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

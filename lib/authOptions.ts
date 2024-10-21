@@ -7,6 +7,17 @@ import FortyTwoProvider from "next-auth/providers/42-school";
 import { prisma } from "./prisma";
 import bcrypt from 'bcrypt';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import generateCreditCardNumber from "@/app/api/algorithms/luhn";
+
+interface UserCreditCard {
+	id: string;
+	number: string;
+	expirationDate: Date;
+	cvv: string;
+	holder: string;
+	isBlocked: boolean;
+}
+
 
 interface ExtendedSession extends Session {
 	user: {
@@ -17,6 +28,9 @@ interface ExtendedSession extends Session {
 		image?: string | null;
 		phoneNumber?: string | null;
 		location?: string | null;
+		balance?: number;
+		transactions?: string[];
+		creditCards?: UserCreditCard[];
 	};
 }
 
@@ -71,91 +85,64 @@ export const authOptions: NextAuthOptions = {
 	// adapter: PrismaAdapter(prisma),
 	callbacks: {
 		async signIn({ user, account }) {
-			async function fetchGoogleUserData(accessToken: string) {
-				const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				const data = await response.json();
-				return {
-					image: data.picture,
-					name: data.name,
-					email: data.email,
-					phoneNumber: data.phone_number,
-					location: data.locale, // Google doesn't provide an exact location, but locale can be used as a proxy
-				};
-			}
-
-			async function fetch42UserData(accessToken: string) {
-				const response = await fetch('https://api.intra.42.fr/v2/me', {
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				const data = await response.json();
-				return {
-					image: data.image.link,
-					name: data.displayname,
-					email: data.email,
-					phoneNumber: data.phone,
-					location: data.location,
-				};
-			}
-
-			async function fetchGithubUserData(accessToken: string) {
-				const response = await fetch('https://api.github.com/user', {
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				const data = await response.json();
-				return {
-					image: data.avatar_url,
-					name: data.name,
-					email: data.email,
-					phoneNumber: null, // GitHub API does not provide phone numbers
-					location: data.location,
-				};
-			}
-
 			try {
 				const { email } = user;
 				if (typeof email !== 'string') {
 					throw new Error("Email is not valid.");
 				}
 
-				let userData;
-				if (account?.provider === 'google') {
-					userData = await fetchGoogleUserData(account.access_token!);
-				} else if (account?.provider === '42-school') {
-					userData = await fetch42UserData(account.access_token!);
-				} else if (account?.provider === 'github') {
-					userData = await fetchGithubUserData(account.access_token!);
-				}
-
 				const existingUser = await prisma.user.findUnique({
 					where: { email },
 				});
 
-				if (!existingUser) {
-					await prisma.user.create({
+				
+				if (existingUser) {
+					console.log("User found with this email\n");
+					throw new Error("User already registered");
+				} else {
+					console.log("Creating User in the database:", existingUser);
+					const newUser = await prisma.user.create({
 						data: {
-							email: userData?.email,
-							name: userData?.name || "Unknown User",
+							email: email,
+							name: user?.name || "Unknown User",
 							password: "",
 							role: "user",
 							provider: account?.provider || "email",
-							city: null,
-							country: null,
-							image: userData?.image,
-							phoneNumber: userData?.phoneNumber || "",
-							location: userData?.location || "Morocco",
+							image: user?.image,
+							phoneNumber: "",
+							location: "Unknown Location",
+							balance: 0,
 						},
 					});
 					console.log("User added to the database.");
-				} else {
-					console.log("User already exists.\n", userData);
+
+					const todayDate = new Date();
+					const newCardNumber = generateCreditCardNumber("421337");
+					const creditCard = await prisma.creditCard.create({
+						data: {
+							ownerId: newUser.id,
+							isBlocked: false,
+							holder: newUser.name,
+							number: newCardNumber,//need to check if its already in the database
+							expirationDate: new Date().setFullYear(todayDate.getFullYear() + 10).toString(),
+							cvv: `${newCardNumber[6]}${newCardNumber[8]}${newCardNumber[10]}`,
+						},
+					});
+
+					console.log("Credit card added to the database.");
+					//link the credit card to the user
+
+					await prisma.user.update({
+						where: { id: newUser.id },
+						data: {
+							creditCards: {
+								connect: {
+									id: creditCard.id,
+								},
+							},
+						},
+					});
+
 				}
 
 				return true;
@@ -167,6 +154,7 @@ export const authOptions: NextAuthOptions = {
 		async session({ session, token }: { session: Session; token: JWT }) {
 			const dbUser = await prisma.user.findUnique({
 				where: { email: session.user?.email as string },
+				include: { creditCards: true },
 			});
 
 			if (dbUser) {
@@ -178,10 +166,13 @@ export const authOptions: NextAuthOptions = {
 				extendedSession.user.image = dbUser.image || '';
 				extendedSession.user.phoneNumber = dbUser.phoneNumber || '';
 				extendedSession.user.location = dbUser.location || '';
-
-				// console.log("Extended session:", extendedSession);
+				extendedSession.user.balance = dbUser.balance;
+				dbUser.creditCards.length > 0 ? extendedSession.user.creditCards = dbUser.creditCards : extendedSession.user.creditCards = [];
+			
+				console.log("Extended session:", extendedSession);
 				return extendedSession;
 			}
+			
 
 			return session;
 		},

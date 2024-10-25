@@ -50,7 +50,7 @@ export default function Home() {
         render: "Error signing in",
         type: "error",
         isLoading: false,
-        autoClose: 5000,
+        autoClose: 3000,
       });
       setLoading(false);
     } else {
@@ -59,7 +59,7 @@ export default function Home() {
         render: "Signed in successfully!",
         type: "success",
         isLoading: false,
-        autoClose: 5000,
+        autoClose: 3000,
       });
   
       // Redirect to the home page after a short delay
@@ -100,7 +100,15 @@ export default function Home() {
           render: data.message || "Registered Successfully",
           type: "success",
           isLoading: false,
-          autoClose: 5000,
+          autoClose: 3000,
+        });
+        setLoading(false);
+      } else if (result.status === 409) {
+        toast.update(newToastId, {
+          render: data.message || "User already registered",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
         });
         setLoading(false);
       } else {
@@ -108,7 +116,7 @@ export default function Home() {
           render: data.message || "An error occurred during sign up",
           type: "error",
           isLoading: false,
-          autoClose: 5000,
+          autoClose: 3000,
         });
         setLoading(false);
       }
@@ -118,7 +126,7 @@ export default function Home() {
         render: "An unexpected error occurred",
         type: "error",
         isLoading: false,
-        autoClose: 5000,
+        autoClose: 3000,
       });
       setLoading(false);
     }
@@ -129,7 +137,7 @@ export default function Home() {
     return emailRegex.test(email);
   }
 
-  const handleOAuthSignIn = async (provider: string) => {
+  const handleOAuthSignIn = async (provider: string, option: number) => {
     if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
     setLoading(true);
 
@@ -146,7 +154,7 @@ export default function Home() {
         render: result.error,
         type: "error",
         isLoading: false,
-        autoClose: 5000,
+        autoClose: 3000,
       });
       setLoading(false);
     } else {
@@ -154,11 +162,14 @@ export default function Home() {
         render: `Signed in successfully with ${provider}!`,
         type: "success",
         isLoading: false,
-        autoClose: 5000,
+        autoClose: 3000,
       });
-      setTimeout(() => {
-        router.push("/Home");
-      }, 3000); // Delay to allow the toast to be visible
+      if (option === 0) {
+        // Redirect to the home page after a short delay
+        setTimeout(() => {
+          router.push("/Home");
+        }, 3000);
+      }
     }
   };
 
@@ -181,21 +192,21 @@ export default function Home() {
           </strong>
           <div className="flex justify-around items-center gap-10">
             <button
-              onClick={() => handleOAuthSignIn("github")}
+              onClick={() => handleOAuthSignIn("github", 0)}
               className={`${loading ? "cursor-not-allowed" : ""}`}
               disabled={loading}
             >
               <Icons.GitHub className="h-28 w-h-28" />
             </button>
             <button
-              onClick={() => handleOAuthSignIn("google")}
+              onClick={() => handleOAuthSignIn("google", 0)}
               className={`${loading ? "cursor-not-allowed" : ""}`}
               disabled={loading}
             >
               <Icons.Google className="h-28 w-h-28" />
             </button>
             <button
-              onClick={() => handleOAuthSignIn("42-school")}
+              onClick={() => handleOAuthSignIn("42-school", 0)}
               className={`${loading ? "cursor-not-allowed" : ""}`}
               disabled={loading}
             >
@@ -283,21 +294,21 @@ export default function Home() {
             </div>
             <div className="flex items-center justify-center gap-10">
               <button
-                onClick={() => handleOAuthSignIn("github")}
+                onClick={() => handleOAuthSignIn("github", 69)}
                 className={`${loading ? "cursor-not-allowed" : ""}`}
                 disabled={loading}
               >
                 <BsGithub className="h-10 w-10" />
               </button>
               <button
-                onClick={() => handleOAuthSignIn("google")}
+                onClick={() => handleOAuthSignIn("google", 69)}
                 className={`${loading ? "cursor-not-allowed" : ""}`}
                 disabled={loading}
               >
                 <BsGoogle className="h-10 w-10" />
               </button>
               <button
-                onClick={() => handleOAuthSignIn("42-school")}
+                onClick={() => handleOAuthSignIn("42-school", 69)}
                 className={`${loading ? "cursor-not-allowed" : ""}`}
                 disabled={loading}
               >

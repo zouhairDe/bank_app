@@ -19,20 +19,13 @@ interface UserCreditCard {
 }
 
 
-interface ExtendedSession extends Session {
-	user: {
-		id: string;
-		role: string;
-		email?: string | null;
-		name?: string | null;
-		image?: string | null;
-		phoneNumber?: string | null;
-		location?: string | null;
-		balance?: number;
-		transactions?: string[];
-		creditCards?: UserCreditCard[];
-	};
+interface Transaction {
+	id: string;
+	amount: number;
+	description: string;
+	createdAt: Date;
 }
+
 
 export const authOptions: NextAuthOptions = {
 	providers: [
@@ -84,99 +77,56 @@ export const authOptions: NextAuthOptions = {
 	],
 	// adapter: PrismaAdapter(prisma),
 	callbacks: {
-		async signIn({ user, account }) {
-			try {
-				const { email } = user;
-				if (typeof email !== 'string') {
-					throw new Error("Email is not valid.");
-				}
-
-				const existingUser = await prisma.user.findUnique({
-					where: { email },
+		async jwt({ token, user }) {
+			// When the user signs in for the first time, add additional properties to the token
+			if (user) {
+				const dbUser = await prisma.user.findUnique({
+					where: { email: user.email as string },
+					include: { creditCards: true },
 				});
-
-				
-				if (existingUser) {
-					console.log("User found with this email\n");
-					throw new Error("User already registered");
-				} else {
-					console.log("Creating User in the database:", existingUser);
-					const newUser = await prisma.user.create({
-						data: {
-							email: email,
-							name: user?.name || "Unknown User",
-							password: "",
-							role: "user",
-							provider: account?.provider || "email",
-							image: user?.image,
-							phoneNumber: "",
-							location: "Unknown Location",
-							balance: 0,
-						},
-					});
-					console.log("User added to the database.");
-
-					const todayDate = new Date();
-					const newCardNumber = generateCreditCardNumber("421337");
-					const creditCard = await prisma.creditCard.create({
-						data: {
-							ownerId: newUser.id,
-							isBlocked: false,
-							holder: newUser.name,
-							number: newCardNumber,//need to check if its already in the database
-							expirationDate: new Date().setFullYear(todayDate.getFullYear() + 10).toString(),
-							cvv: `${newCardNumber[6]}${newCardNumber[8]}${newCardNumber[10]}`,
-						},
-					});
-
-					console.log("Credit card added to the database.");
-					//link the credit card to the user
-
-					await prisma.user.update({
-						where: { id: newUser.id },
-						data: {
-							creditCards: {
-								connect: {
-									id: creditCard.id,
-								},
-							},
-						},
-					});
-
+	
+				if (dbUser) {
+					token.id = dbUser.id;
+					token.role = dbUser.role;
+					token.phoneNumber = dbUser.phoneNumber;
+					token.location = dbUser.location;
+					token.balance = dbUser.balance;
+					token.creditCards = dbUser.creditCards;
 				}
-
-				return true;
-			} catch (error) {
-				console.error("Error in signIn callback:", error);
-				return false;
 			}
+			return token;
 		},
-		async session({ session, token }: { session: Session; token: JWT }) {
+	
+		async session({ session, token }) {
 			const dbUser = await prisma.user.findUnique({
-				where: { email: session.user?.email as string },
-				include: { creditCards: true },
+			  where: { email: session.user?.email as string },
+			  include: { creditCards: true, transactions: true },
 			});
-
+		  
 			if (dbUser) {
-				const extendedSession = session as ExtendedSession;
-				extendedSession.user.id = dbUser.id;
-				extendedSession.user.role = dbUser.role;
-				extendedSession.user.email = dbUser.email;
-				extendedSession.user.name = dbUser.name;
-				extendedSession.user.image = dbUser.image || '';
-				extendedSession.user.phoneNumber = dbUser.phoneNumber || '';
-				extendedSession.user.location = dbUser.location || '';
-				extendedSession.user.balance = dbUser.balance;
-				dbUser.creditCards.length > 0 ? extendedSession.user.creditCards = dbUser.creditCards : extendedSession.user.creditCards = [];
-			
-				console.log("Extended session:", extendedSession);
-				return extendedSession;
+			  session.user = {
+				id: dbUser.id,
+				name: dbUser.name,
+				email: dbUser.email,
+				role: dbUser.role,
+				phoneNumber: dbUser.phoneNumber,
+				image: dbUser.image,
+				location: dbUser.location,
+				provider: dbUser.provider,
+				createdAt: dbUser.createdAt,
+				updatedAt: dbUser.updatedAt,
+				balance: dbUser.balance,
+				isBanned: dbUser.isBanned,
+				isVerified: dbUser.isVerified,
+				creditCards: dbUser.creditCards,
+				transactions: dbUser.transactions,
+			  };
 			}
-			
-
+		  
 			return session;
-		},
-	},
+		  }
+		  
+	},	
 };
 
 async function validatePassword(plainTextPassword: string, hashedPassword: string) {

@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const { email, password } = await request.json();
 
     // Validate input
-	// console.log("Email:", email, "Password:", password);//hhhhhh
+	console.log("Email:", email, "Password:", password);//hhhhhh
     if (!email || !password) {
       return new Response(
         JSON.stringify({ message: 'Email and password are required' }),
@@ -39,8 +39,14 @@ export async function POST(request: Request) {
         provider: "email",
         image: "",
         phoneNumber: "",
+        location: "",
+        balance: 0,
+        isBanned: false,
+        isVerified: false,
       },
     });
+
+    console.log("New User:", newUser);
 
     return new Response(
       JSON.stringify({ message: "Registered Successfully" }),

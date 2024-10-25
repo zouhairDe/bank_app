@@ -22,6 +22,7 @@ async function main() {
 			image: 'https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg',
 			location: 'Khouribga-25000, Morocco',
 			balance: 69000,
+			gender: "Male",
 			isBanned: false,
 			isVerified: true,
 		},

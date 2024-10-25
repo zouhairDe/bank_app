@@ -32,7 +32,7 @@ export default function Home() {
     if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
     setLoading(true);
   
-    toast.dismiss(); // Dismiss any existing toasts
+    toast.dismiss();
     const newToastId = toast.loading("Signing in...", {
       position: "top-right",
     });
@@ -45,24 +45,22 @@ export default function Home() {
     });
   
     if (result?.error) {
-      // Update the toast with an error message
+      console.error("Error signing in:", result.error, "result code:", result.status);
       toast.update(newToastId, {
         render: "Error signing in",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 1000,
       });
       setLoading(false);
     } else {
-      // Update the toast with a success message
       toast.update(newToastId, {
         render: "Signed in successfully!",
         type: "success",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 1000,
       });
   
-      // Redirect to the home page after a short delay
       setTimeout(() => {
         router.push("/Home");
       }, 3000);
@@ -100,7 +98,7 @@ export default function Home() {
           render: data.message || "Registered Successfully",
           type: "success",
           isLoading: false,
-          autoClose: 3000,
+          autoClose: 1000,
         });
         setLoading(false);
       } else if (result.status === 409) {
@@ -108,7 +106,7 @@ export default function Home() {
           render: data.message || "User already registered",
           type: "error",
           isLoading: false,
-          autoClose: 3000,
+          autoClose: 1000,
         });
         setLoading(false);
       } else {
@@ -116,7 +114,7 @@ export default function Home() {
           render: data.message || "An error occurred during sign up",
           type: "error",
           isLoading: false,
-          autoClose: 3000,
+          autoClose: 1000,
         });
         setLoading(false);
       }
@@ -126,7 +124,7 @@ export default function Home() {
         render: "An unexpected error occurred",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 1000,
       });
       setLoading(false);
     }
@@ -138,10 +136,10 @@ export default function Home() {
   }
 
   const handleOAuthSignIn = async (provider: string, option: number) => {
-    if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
+    if (loading || toast.isActive(toastId)) return;
     setLoading(true);
 
-    toast.dismiss(); // Dismiss any existing toasts
+    toast.dismiss();
     const newToastId = toast.loading(`Signing in with ${provider}...`, {
       position: "top-right",
     });
@@ -154,7 +152,7 @@ export default function Home() {
         render: result.error,
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 1000,
       });
       setLoading(false);
     } else {
@@ -162,14 +160,11 @@ export default function Home() {
         render: `Signed in successfully with ${provider}!`,
         type: "success",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 1000,
       });
-      if (option === 0) {
-        // Redirect to the home page after a short delay
-        setTimeout(() => {
-          router.push("/Home");
-        }, 3000);
-      }
+      setTimeout(() => {
+        router.push("/Home");
+      }, 3000);
     }
   };
 
@@ -272,7 +267,7 @@ export default function Home() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500 pr-10" // Add padding-right to avoid overlap
+              className="w-full p-2 border-2 border-[#28273f] rounded-2xl mb-4 focus:outline-none focus:border-blue-500 pr-10"
             />
             <button
               className="absolute right-2 top-[50%] transform translate-y-[-75%] rounded-full"

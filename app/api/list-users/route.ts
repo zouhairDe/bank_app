@@ -1,16 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/prisma';
 
-export async function DELETE(request: Request) {
+export async function GET(request: Request) {
     try {
-        const responde = await prisma.user.deleteMany({});
+        const responde = await prisma.user.findMany({});
         return new Response(
             JSON.stringify({ message: responde }),
             { status: 201, headers: { "Content-Type": "application/json" } }
         );
     }
     catch (error) {
-        console.error('Failed to delete users:', error);
+        console.error('Failed to list users:', error);
         return new Response(
             JSON.stringify({ message: 'Internal server error' }),
             { status: 500, headers: { "Content-Type": "application/json" } }

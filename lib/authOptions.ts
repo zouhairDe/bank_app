@@ -9,6 +9,8 @@ import bcrypt from 'bcrypt';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import generateCreditCardNumber from "@/app/api/algorithms/luhn";
 
+//TODO:need to add signout functionality
+
 export const authOptions: NextAuthOptions = {
 	providers: [
 		GithubProvider({
@@ -67,11 +69,60 @@ export const authOptions: NextAuthOptions = {
 			  };
 			},
 		  }),
-	],
-	// adapter: PrismaAdapter(prisma),
-	callbacks: {
-		//if the user isnot verified, they can't sign in: we send email to them to verify their account
-		async jwt({ token, user }) {
+		],
+		// adapter: PrismaAdapter(prisma),
+		callbacks: {
+			//should register the users in the database if they don't exist meannign they came from  either github, google or 42
+			async signIn({ user, account, profile }) {
+				let email, name, image;
+    			if (account?.provider === 'credentials') {
+    			  // Assign user properties from credentials-based login
+    			  email = user.email;
+    			  name = user.name;
+    			  image = user.image;
+    			} else {
+    			  // Assign properties for OAuth providers
+    			  email = profile?.email;
+    			  name = profile?.name || profile?.displayname; // Default for 42
+    			  image = profile?.image?.link || profile?.image || user.image;
+    			}
+				const userExists = await prisma.user.findUnique({
+					where: { email: email as string },
+				});
+	
+				if (!userExists) {
+	
+					let imageLink, DisplayName;
+					// For 42 provider, handle image as an object with links
+					if (account?.provider === "42-school" && typeof profile?.image === 'object' && profile?.image?.link) {
+						console.log("Profile :", profile);
+						DisplayName = profile?.displayname;
+						imageLink = profile?.image.link;  // Primary image link for 42
+					} else {
+						imageLink = profile?.image as string;  // Standard image for other providers
+					}
+					console.log("Image Link:", imageLink);
+					await prisma.user.create({
+						data: {
+							email: email as string,
+							name: DisplayName || name as string,
+							image: imageLink,
+							provider: account?.provider as string,
+							role: "USER",
+							isVerified: false,
+							isBanned: false,
+							balance: 0,
+							password: "",
+							location: "",
+							phoneNumber: "",
+							gender: "",
+						},
+					});
+				}
+				return true;
+			},
+			//if the user is not verified, they can't sign in: we send email to them to verify their account
+			async jwt({ token, user }) {
 			// When the user signs in for the first time, add additional properties to the token
 			if (user) {
 				const dbUser = await prisma.user.findUnique({
@@ -93,32 +144,34 @@ export const authOptions: NextAuthOptions = {
 		},
 	
 		async session({ session, token }) {
+			console.log("Session user email:", session.user?.email);
 			const dbUser = await prisma.user.findUnique({
 			  where: { email: session.user?.email as string },
 			  include: { creditCards: true, transactions: true },
 			});
+			console.log("dbUser: ", dbUser); // Check session structure
+
 		  
 			if (dbUser) {
-				console.log("Session: ", session); // Check session structure
-			  session.user = {
-				id: dbUser.id,
-				name: dbUser.name,
-				email: dbUser.email,
-				role: dbUser.role,
-				phoneNumber: dbUser.phoneNumber,
-				image: dbUser.image,
-				location: dbUser.location,
-				provider: dbUser.provider,
-				createdAt: dbUser.createdAt,
-				updatedAt: dbUser.updatedAt,
-				balance: dbUser.balance,
-				isBanned: dbUser.isBanned,
-				isVerified: dbUser.isVerified,
-				creditCards: dbUser.creditCards,
-				transactions: dbUser.transactions,
-			  };
+				session.user = {
+					id: dbUser.id,
+					name: dbUser.name,
+					email: dbUser.email,
+					role: dbUser.role,
+					phoneNumber: dbUser.phoneNumber,
+					image: dbUser.image,
+					location: dbUser.location,
+					provider: dbUser.provider,
+					createdAt: dbUser.createdAt,
+					updatedAt: dbUser.updatedAt,
+					balance: dbUser.balance,
+					isBanned: dbUser.isBanned,
+					isVerified: dbUser.isVerified,
+					creditCards: dbUser.creditCards,
+					transactions: dbUser.transactions,
+				};
 			}
-		  
+			
 			return session;
 		  }
 		  

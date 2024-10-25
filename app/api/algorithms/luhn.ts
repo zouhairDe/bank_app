@@ -31,8 +31,3 @@ function calculateLuhnCheckDigit(cardNumber: string): number {
 }
 
 export default generateCreditCardNumber;
-
-// Example usage:
-const base = "421337";
-// const creditCardNumber = generateCreditCardNumber(base);
-// console.log("Generated Credit Card Number:", creditCardNumber);

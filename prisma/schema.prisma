@@ -21,7 +21,8 @@ model User {
   role          String         @default("user")
   phoneNumber   String?
   image         String?
-  location      String?
+  location      String?//should add a gender field
+  //gender        String?        //should add
   provider      String         @default("email")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt

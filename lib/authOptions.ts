@@ -9,24 +9,6 @@ import bcrypt from 'bcrypt';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import generateCreditCardNumber from "@/app/api/algorithms/luhn";
 
-interface UserCreditCard {
-	id: string;
-	number: string;
-	expirationDate: Date;
-	cvv: string;
-	holder: string;
-	isBlocked: boolean;
-}
-
-
-interface Transaction {
-	id: string;
-	amount: number;
-	description: string;
-	createdAt: Date;
-}
-
-
 export const authOptions: NextAuthOptions = {
 	providers: [
 		GithubProvider({
@@ -54,6 +36,7 @@ export const authOptions: NextAuthOptions = {
 	  
 			  const user = await prisma.user.findUnique({
 				where: { email: credentials.email },
+				include: { creditCards: true , transactions: true},
 			  });
 	  
 			  if (!user) {
@@ -71,12 +54,23 @@ export const authOptions: NextAuthOptions = {
 				name: user.name,
 				image: user.image,
 				role: user.role,
+				phoneNumber: user.phoneNumber,
+				location: user.location,
+				provider: user.provider,
+				createdAt: user.createdAt,
+				updatedAt: user.updatedAt,
+				balance: user.balance,
+				isBanned: user.isBanned,
+				isVerified: user.isVerified,
+				creditCards: user.creditCards,
+				transactions: user.transactions,
 			  };
 			},
 		  }),
 	],
 	// adapter: PrismaAdapter(prisma),
 	callbacks: {
+		//if the user isnot verified, they can't sign in: we send email to them to verify their account
 		async jwt({ token, user }) {
 			// When the user signs in for the first time, add additional properties to the token
 			if (user) {
@@ -84,14 +78,15 @@ export const authOptions: NextAuthOptions = {
 					where: { email: user.email as string },
 					include: { creditCards: true },
 				});
-	
+
 				if (dbUser) {
 					token.id = dbUser.id;
 					token.role = dbUser.role;
 					token.phoneNumber = dbUser.phoneNumber;
 					token.location = dbUser.location;
 					token.balance = dbUser.balance;
-					token.creditCards = dbUser.creditCards;
+					// token.isBanned = dbUser.isBanned;
+					token.isVerified = dbUser.isVerified;
 				}
 			}
 			return token;
@@ -104,6 +99,7 @@ export const authOptions: NextAuthOptions = {
 			});
 		  
 			if (dbUser) {
+				console.log("Session: ", session); // Check session structure
 			  session.user = {
 				id: dbUser.id,
 				name: dbUser.name,

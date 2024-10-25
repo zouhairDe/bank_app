@@ -4,31 +4,8 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Loading from "@/ui/Loading";
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { prisma } from "../../../lib/prisma";
 
-// interface UserCreditCard {
-// 	id: string;
-// 	number: string;
-// 	expirationDate: Date;
-// 	cvv: string;
-// 	holder: string;
-// 	isBlocked: boolean;
-// }
-
-// interface ExtendedSession {
-// 	user: {
-// 		id: string;
-// 		role: string;
-// 		email?: string | null;
-// 		name?: string | null;
-// 		image?: string | null;
-// 		phoneNumber?: string | null;
-// 		location?: string | null;
-// 		balance?: number;
-// 		transactions?: string[];
-// 		creditCards?: UserCreditCard[];
-// 	};
-// }
 
 const Home = () => {
 	const { data: session, status } = useSession();
@@ -45,6 +22,29 @@ const Home = () => {
 		return <Loading />;
 	}
 
+	useEffect(() => {
+		if (session) {
+			console.log("Session: ", session); // Check session structure
+			console.log("isVerified: ", session.user?.isVerified);
+			if (session.user?.isVerified === false) {
+				router.push("/verify-email");
+			}
+		}
+	}, [session, router]);
+
+		const FatMan = async () => {
+			const response = await fetch('/api/delete-users', {
+				method: 'DELETE',
+			});
+		
+			if (response.ok) {
+				const data = await response.json();
+				console.log(data.message);
+			} else {
+				console.error('Failed to delete users:', response.statusText);
+			}
+		};
+
 	return (
 		<div className="h-full w-full text-white">
 			{/* User data container */}
@@ -54,11 +54,11 @@ const Home = () => {
 			</div>
 
 			{/* Display user credit cards if needed */}
-			{session?.user?.creditCards?.length > 0 && (
+			{session!.user?.creditCards?.length > 0 && (
 				<div className="mt-4">
 					<h2 className="text-2xl font-semibold">Your Credit Cards</h2>
 					<ul className="list-disc">
-						{session.user.creditCards.map(card => (
+						{session?.user.creditCards.map(card => (
 							<li key={card.id}>
 								<p>Holder: {card.holder}</p>
 								<p>Number: **** **** **** {card.number.slice(-4)}</p>
@@ -69,6 +69,7 @@ const Home = () => {
 					</ul>
 				</div>
 			)}
+			<button onClick={FatMan}>Fuck the users</button>
 		</div>
 	);
 };

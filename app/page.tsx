@@ -18,7 +18,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [toastId, setToastId] = useState(null);
+  const [toastId, setToastId] = useState(null as any);
   const [isSignUp, setIsSignUp] = useState(false);
   const [onPassword, setOnPassword] = useState(false);
 
@@ -47,7 +47,7 @@ export default function Home() {
     if (result?.error) {
       console.error("Error signing in:", result.error, "result code:", result.status);
       toast.update(newToastId, {
-        render: "Error signing in",
+        render: result.error,
         type: "error",
         isLoading: false,
         autoClose: 1000,

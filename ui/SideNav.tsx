@@ -18,7 +18,7 @@ const SideNav = () => {
 
 			{/* Bottom Section:setting and logout */}
 			<div className="flex items-center justify-center">
-				<button onClick={() => signOut()}>
+				<button onClick={() => signOut({ callbackUrl: "/" })}>
 					<FaSignOutAlt className="text-2xl" />
 				</button>
 			</div>

@@ -1,7 +1,6 @@
 "use client"
 
-import React from 'react'
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Loading from '@/ui/Loading';
@@ -22,7 +21,7 @@ const sendEmail = async (email: string, verificationUrl: string) => {
             process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID as string,
             templateParams
         );
-        
+
         console.log('Email sent successfully!', response);
     } catch (error) {
         console.error('Error sending email:', error);
@@ -31,8 +30,9 @@ const sendEmail = async (email: string, verificationUrl: string) => {
 };
 
 const VerifyEmail = () => {
-    const { data: session, status, update } = useSession(); // Add update function
+    const { data: session, status, update } = useSession();
     const [verurl, setVerurl] = useState<string>("");
+    const [showBackdrop, setShowBackdrop] = useState(false); // Add backdrop state
     const router = useRouter();
 
     useEffect(() => {
@@ -44,6 +44,12 @@ const VerifyEmail = () => {
     if (status === "loading") {
         return <Loading />;
     }
+
+    useEffect(() => {
+        if (session?.user?.isVerified) {
+            router.push("/Home");
+        }
+    }, [session, router]);
 
     const sendVerificationEmail = async () => {
         const response = await fetch("/api/send-verification-email", {
@@ -77,13 +83,12 @@ const VerifyEmail = () => {
             }
 
             console.log("Attempting to activate with token:", verurl);
-            
+
             const response = await fetch(`/api/activate/${verurl}`, {
                 method: "GET",
             });
 
             if (response.ok) {
-                // Update the session to reflect verification
                 await update({ isVerified: true });
                 router.push('/Home');
                 alert("Account activated successfully!");
@@ -98,14 +103,53 @@ const VerifyEmail = () => {
         }
     };
 
+    // Sign-out handler with backdrop
+    const handleSignOut = () => {
+        setShowBackdrop(true);  // Show the backdrop
+        signOut({ callbackUrl: "/" });
+    };
+
     return (
         <>
             <div>verifyEmail</div>
-            <button onClick={() => signOut()}>Sign-out</button>
+            <button onClick={handleSignOut}>Sign-out</button>
+            <br/>
             <button onClick={sendVerificationEmail}>send Verification email?</button>
             <div onClick={testActivation}>Verify email</div>
+
+            {/* Backdrop overlay with spinner */}
+            {showBackdrop && (
+                <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1000,
+                }}>
+                    <div style={{
+                        width: "50px",
+                        height: "50px",
+                        border: "5px solid rgba(255, 255, 255, 0.3)",
+                        borderTop: "5px solid white",
+                        borderRadius: "50%",
+                        animation: "spin 1s linear infinite"
+                    }} />
+                </div>
+            )}
+
+            <style jsx>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
         </>
-    )
+    );
 }
 
 export default VerifyEmail;

@@ -1,5 +1,6 @@
-import { prisma } from "@/lib/prisma"; // Adjust this import based on your project structure
-import { NextResponse } from "next/server"; // Ensure you're using NextResponse for compatibility
+import { prisma } from "@/lib/prisma";
+import { randomUUID } from "crypto";
+import { NextResponse } from "next/server";
 
 
 // Function to handle the POST request
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
         token = await prisma.verificationToken.create({
             data: {
                 userId: user.id,
-                token: Math.random().toString(36).substring(2),
+                token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
                 createdAt: new Date(),
             },
         });

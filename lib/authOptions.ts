@@ -116,12 +116,13 @@ export const authOptions: NextAuthOptions = {
 							location: "",
 							phoneNumber: "",
 							gender: "",
+							DataSubmitted: false,
+							phoneNumberVerified: false,
 						},
 					});
 				}
 				return true;
 			},
-			//if the user is not verified, they can't sign in: we send email to them to verify their account
 			async jwt({ token, user }) {
 			// When the user signs in for the first time, add additional properties to the token
 			if (user) {
@@ -138,6 +139,11 @@ export const authOptions: NextAuthOptions = {
 					token.balance = dbUser.balance;
 					// token.isBanned = dbUser.isBanned;
 					token.isVerified = dbUser.isVerified;
+					token.image = dbUser.image;
+					token.provider = dbUser.provider;
+					token.phoneNumberVerified = dbUser.phoneNumberVerified;
+					token.DataSubmitted = dbUser.DataSubmitted;
+					token.gender = dbUser.gender;
 				}
 			}
 			return token;
@@ -149,8 +155,6 @@ export const authOptions: NextAuthOptions = {
 			  where: { email: session.user?.email as string },
 			  include: { creditCards: true, transactions: true },
 			});
-			console.log("dbUser: ", dbUser); // Check session structure
-
 		  
 			if (dbUser) {
 				session.user = {
@@ -169,11 +173,15 @@ export const authOptions: NextAuthOptions = {
 					isVerified: dbUser.isVerified,
 					creditCards: dbUser.creditCards,
 					transactions: dbUser.transactions,
+					phoneNumberVerified: dbUser.phoneNumberVerified,
+					DataSubmitted: dbUser.DataSubmitted,
+					gender: dbUser.gender,
 				};
 			}
-			
 			return session;
-		  }
+		  },
+
+		  
 		  
 	},	
 };

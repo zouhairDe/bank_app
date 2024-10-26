@@ -17,7 +17,7 @@ async function main() {
 			name: 'seedAdmin',
 			password: hashPassword('seedAdmin'),
 			provider: 'Manual',
-			role: 'tester',
+			role: 'ADMIN',
 			phoneNumber: '0606060606',
 			image: 'https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg',
 			location: 'Khouribga-25000, Morocco',
@@ -25,6 +25,8 @@ async function main() {
 			gender: "Male",
 			isBanned: false,
 			isVerified: true,
+			phoneNumberVerified: true,
+			DataSubmitted: true,
 		},
 	})
 

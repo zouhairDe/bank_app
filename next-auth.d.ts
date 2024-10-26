@@ -28,6 +28,9 @@ declare module "next-auth" {
       isVerified: boolean;
       creditCards: UserCreditCard[];
       transactions: Transaction[];
+      phoneNumberVerified: boolean;
+      DataSubmitted: boolean;
+      gender: string | null;
     };
   }
 }
@@ -41,6 +44,9 @@ declare module "next-auth/jwt" {
     balance: number;
     isBanned: boolean;
     isVerified: boolean;
+    gender: string | null;
+    phoneNumberVerified: boolean;
+    DataSubmitted: boolean;
     creditCards: UserCreditCard[];
     transactions: Transaction[];
   }

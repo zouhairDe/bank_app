@@ -22,16 +22,18 @@ model User {
   phoneNumber   String?
   image         String?
   location      String?
-  gender        String?        //should add
+  gender        String?
   provider      String         @default("email")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   balance       Float          @default(0.0)
   isBanned      Boolean        @default(false)
   isVerified    Boolean        @default(false)
+  phoneNumberVerified Boolean  @default(false)
+  DataSubmitted Boolean        @default(false)
   creditCards   CreditCard[]   // Relation field
   transactions  Transaction[]  // Relation field
-  VerificationToken VerificationToken[]
+  VerificationToken VerificationToken[]//maybe we hould add the last login field
 }
 
 model CreditCard {

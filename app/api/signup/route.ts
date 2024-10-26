@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const { email, password } = await request.json();
 
     // Validate input
-	console.log("Email:", email, "Password:", password);//hhhhhh
+    console.log("Email:", email, "Password:", password);//hhhhhh
     if (!email || !password) {
       return new Response(
         JSON.stringify({ message: 'Email and password are required' }),
@@ -27,6 +27,12 @@ export async function POST(request: Request) {
     }
 
     // Hash the password before saving
+    if (password.length < 8 || password.length > 72) {
+      return new Response(
+        JSON.stringify({ message: 'Password must be between 8 and 72 characters' }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new user in the database
@@ -35,7 +41,7 @@ export async function POST(request: Request) {
       update: {},
       create: {
         email,
-        name: "Unknown User"+Math.floor(Math.random() * 1000),
+        name: "Unknown User" + Math.floor(Math.random() * 1000),
         password: hashedPassword,
         role: "user",
         provider: "email",
@@ -47,8 +53,6 @@ export async function POST(request: Request) {
         isVerified: false,
       },
     });
-
-    console.log("New User:", newUser);
 
     return new Response(
       JSON.stringify({ message: "Registered Successfully" }),

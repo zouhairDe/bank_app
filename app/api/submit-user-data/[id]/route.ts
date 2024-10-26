@@ -2,6 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth/next";
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
+
+function hashPassword(password: string) {
+  return bcrypt.hashSync(password, 10)
+}
 
 interface FormData {
   name: string;
@@ -10,6 +15,7 @@ interface FormData {
   image: string;
   location: string;
   gender: string;
+  password: string;
 }
 
 export async function POST(
@@ -56,6 +62,15 @@ export async function POST(
       return NextResponse.json({ message: "Invalid gender value" }, { status: 400 });
     }
 
+    if (formData.password && user.provider === "email") {
+      console.log("User provider:", user.provider, "Password:", formData.password);
+      return NextResponse.json({ message: "You can change your Password later on Settings > Privacy and security" }, { status: 400 });
+    }
+
+    if (session?.user.provider !== 'email' && (formData.password.length < 8 || formData.password.length > 72)) {
+      return NextResponse.json({ message: "Password must be between 8 and 70 character" }, { status: 400 });
+    }
+
     // Update user data
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -67,6 +82,7 @@ export async function POST(
         location: formData.location,
         gender: formData.gender,
         DataSubmitted: true,
+        password: hashPassword(formData.password),
       },
     });
 

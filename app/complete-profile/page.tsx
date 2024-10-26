@@ -13,6 +13,7 @@ interface FormData {
   image: string;
   location: string;
   gender: string;
+  password: string;
 }
 
 const DataCompletion: React.FC = () => {
@@ -27,6 +28,7 @@ const DataCompletion: React.FC = () => {
     image: session?.user?.image || '',
     location: session?.user?.location || '',
     gender: session?.user?.gender || '',
+    password: (session?.user?.provider === "email" ? "AllreadyFilled" : "") || '',
   });
 
   useEffect(() => {
@@ -52,6 +54,7 @@ const DataCompletion: React.FC = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    session?.user.provider === "email" ? setFormData((prev) => ({ ...prev, password: "" })) : setFormData((prev) => ({ ...prev, [name]: value }));
     setError(''); // Clear error when user makes changes
   };
 
@@ -188,6 +191,28 @@ const DataCompletion: React.FC = () => {
               name="image"
               value={formData.image}
               onChange={handleChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            <label className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={session?.user.provider === "email"}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            <label className="block text-sm font-medium text-gray-700">
+              Re-type Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={session?.user.provider === "email"}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>

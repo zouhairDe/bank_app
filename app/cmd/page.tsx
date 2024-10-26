@@ -1,6 +1,7 @@
 "use client";
 
-import { notFound } from 'next/navigation';
+import { useExtendedStatus } from '@/hooks/useExtendedStatus';
+import { useRouter } from 'next/navigation';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 interface User {
@@ -197,6 +198,16 @@ const Terminal = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const [isInputFocused, setIsInputFocused] = useState(true);
+  const { extendedStatus, session } = useExtendedStatus();
+  const router = useRouter();
+
+  // useEffect(() => {
+
+  //   if (!["ADMIN", "tester"].includes(session?.user?.role as string)) {
+  //     router.push('/Home');
+  //   }
+
+  // }, [extendedStatus, session]);
 
   // Enhanced focus management
   useEffect(() => {

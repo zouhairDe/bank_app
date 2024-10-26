@@ -143,7 +143,9 @@ export async function POST(request: Request) {
                                 'delete-all: Really? ra bayna katms7 kolchi',
                                 'make-me-rich: it makes you rich - Usage: [make-me-rich [userEmail - amount[less than 70k$]]]',
                                 'status: Find about it yourself',
-                                'help: display what you are looking at right now'
+                                'whoami: Who are you?',
+                                'help: display what you are looking at right now',
+                                'exit: kill terminal'
                             ]
                         } 
                     }),

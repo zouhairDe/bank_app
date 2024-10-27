@@ -200,16 +200,14 @@ const Terminal = () => {
   const [isInputFocused, setIsInputFocused] = useState(true);
   const { extendedStatus, session } = useExtendedStatus();
   const router = useRouter();
+  const outputRef = useRef<HTMLDivElement>(null);
 
-  // useEffect(() => {
+  useEffect(() => {
+    if (outputRef.current) {
+      outputRef.current.scrollTop = outputRef.current.scrollHeight;
+    }
+  }, [output]);
 
-  //   if (!["ADMIN", "tester"].includes(session?.user?.role as string)) {
-  //     router.push('/Home');
-  //   }
-
-  // }, [extendedStatus, session]);
-
-  // Enhanced focus management
   useEffect(() => {
     const focusInput = () => {
       if (!isInputFocused) {
@@ -218,21 +216,17 @@ const Terminal = () => {
       }
     };
 
-    // Focus input on mount
     focusInput();
 
-    // Add global event listeners
     document.addEventListener('keydown', focusInput);
     window.addEventListener('focus', focusInput);
     
-    // Cleanup listeners
     return () => {
       document.removeEventListener('keydown', focusInput);
       window.removeEventListener('focus', focusInput);
     };
   }, [isInputFocused]);
 
-  // Handle cursor position
   useEffect(() => {
     if (inputRef.current) {
       const length = inputRef.current.value.length;
@@ -358,11 +352,35 @@ const Terminal = () => {
 
   return (
     <div 
-      className="bg-[#2d2d2d] min-h-screen font-Space_Grotesk text-white" 
+      className="bg-[#2d2d2d] h-screen overflow-hidden font-Space_Grotesk text-white flex flex-col" 
       ref={terminalRef} 
       onClick={handleTerminalClick}
     >
-      <div className="p-4">
+      <div 
+        ref={outputRef}
+        className="flex-1 overflow-auto p-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-[#2d2d2d]"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#4A5568 #2d2d2d',
+          msOverflowStyle: 'none',
+        }}
+      >
+        <style jsx global>{`
+          ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+          }
+          ::-webkit-scrollbar-track {
+            background: #2d2d2d;
+          }
+          ::-webkit-scrollbar-thumb {
+            background: #4A5568;
+            border-radius: 4px;
+          }
+          ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+          }
+        `}</style>
         <div className="whitespace-pre-wrap break-words">
           {output.map((line, index) => (
             <div key={index} className="mb-2">
@@ -370,6 +388,8 @@ const Terminal = () => {
             </div>
           ))}
         </div>
+      </div>
+      <div className="p-4 border-t border-gray-700">
         <div className="flex items-center">
           {renderPrompt()}
           <input

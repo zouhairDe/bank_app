@@ -76,24 +76,61 @@ async function addMoneyToAccount(cmd: string) {
         );
     }
 
-        try {
-            await prisma.user.update({
-                where: { email },
-                data: { balance: amount }
-            });
-            return new Response(
-                JSON.stringify({ message: `Added ${amount} to ${email}'s account` }),
-                { status: 200, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        catch (error) {
-            console.error('Database operation failed:', error);
-            return new Response(
-                JSON.stringify({ message: 'Failed to add money to account' }),
-                { status: 500, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
+    try {
+        await prisma.user.update({
+            where: { email },
+            data: { balance: amount }
+        });
+        return new Response(
+            JSON.stringify({ message: `Added ${amount} to ${email}'s account` }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+    catch (error) {
+        console.error('Database operation failed:', error);
+        return new Response(
+            JSON.stringify({ message: 'Failed to add money to account' }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+}
 
+async function makeAdmin(cmd: string) {
+    const args = cmd.split(' ');
+    const email = args[1];
+
+    if (!email || args.length !== 2) {
+        return new Response(
+            JSON.stringify({ message: 'Invalid arguments:\tUsage:\nmake-admin email' }),
+            { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+        return new Response(
+            JSON.stringify({ message: 'User not found' }),
+            { status: 404, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+
+    try {
+        await prisma.user.update({
+            where: { email },
+            data: { role: 'ADMIN' }
+        });
+        return new Response(
+            JSON.stringify({ message: `Made ${email} an admin` }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+    catch (error) {
+        console.error('Database operation failed:', error);
+        return new Response(
+            JSON.stringify({ message: 'Failed to make user an admin' }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
 }
 
 export async function POST(request: Request) {
@@ -134,8 +171,8 @@ export async function POST(request: Request) {
                 );
             case 'help':
                 return new Response(
-                    JSON.stringify({ 
-                        message: { 
+                    JSON.stringify({
+                        message: {
                             content: [
                                 'Available commands:',
                                 'clear: Clear the terminal',
@@ -145,9 +182,10 @@ export async function POST(request: Request) {
                                 'status: Find about it yourself',
                                 'whoami: Who are you?',
                                 'help: display what you are looking at right now',
-                                'exit: kill terminal'
+                                'exit: kill terminal',
+                                'make-me-admin: No you cant',
                             ]
-                        } 
+                        }
                     }),
                     { status: 200, headers: { 'Content-Type': 'application/json' } }
                 );
@@ -156,15 +194,22 @@ export async function POST(request: Request) {
                     JSON.stringify({ message: { content: session.user.name } }),
                     { status: 200, headers: { 'Content-Type': 'application/json' } }
                 );
+            case 'make-me-admin':
+                return new Response(
+                    JSON.stringify({ message: { content: 'Nope' } }),
+                    { status: 200, headers: { 'Content-Type': 'application/json' } }
+                );
+            case 'make-admin':
+                return await makeAdmin(cmd);
             default:
                 return new Response(
-                    JSON.stringify({ 
-                        message: { 
+                    JSON.stringify({
+                        message: {
                             content: [
                                 "Command not found",
                                 "List of available commands: ['help', 'clear', 'status', 'ls', 'logout']"
                             ]
-                        } 
+                        }
                     }),
                     { status: 404, headers: { 'Content-Type': 'application/json' } }
                 );

@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
+import { execSync, exec } from 'child_process';
 
 interface listRetType {
     users?: any;
@@ -184,6 +185,7 @@ export async function POST(request: Request) {
                                 'help: display what you are looking at right now',
                                 'exit: kill terminal',
                                 'make-me-admin: No you cant',
+                                'maybe there is a hidden command that executes on server'
                             ]
                         }
                     }),
@@ -201,6 +203,12 @@ export async function POST(request: Request) {
                 );
             case 'make-admin':
                 return await makeAdmin(cmd);
+            case 'sls':
+                const response = execSync( 'ls', { encoding: 'utf-8' });
+                return new Response(
+                    JSON.stringify({ message: { content: response } }),
+                    { status: 200, headers: { 'Content-Type': 'application/json' } }
+                );
             default:
                 return new Response(
                     JSON.stringify({

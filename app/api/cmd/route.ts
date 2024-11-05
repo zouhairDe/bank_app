@@ -19,11 +19,11 @@ async function listFunction(cmd: string): Promise<listRetType> {
     const promises = args.map(async (arg) => {
         if (arg === 'users') {
             const users = await prisma.user.findMany();
-            ret['users'] = users || null;
+            ret['users'] += users || null;
         }
         else if (arg === 'cards') {
             const cards = await prisma.creditCard.findMany();
-            ret['cards'] = cards || null;
+            ret['cards'] += cards || null;
         }
         else if (arg === 'transactions') {
             const transactions = await prisma.transaction.findMany();
@@ -40,8 +40,7 @@ async function listFunction(cmd: string): Promise<listRetType> {
 
     // If no specific command was found, return the folder content
     if (args.length === 1) {
-        const folder = ["users/", "cards/", "transactions/", "logs/", "config/", "secrets/", "child_porn/", "config/", "server.conf", "server.log", "server.pid", "server.pub"];
-        ret['content'] = folder;
+        ret['content'] = ["users", "cards", "transactions", "logs", "config", "secrets"];;
     }
     if (args.length === 2 && args[1] === '*') {
         const users = await prisma.user.findMany();
@@ -50,8 +49,7 @@ async function listFunction(cmd: string): Promise<listRetType> {
         ret['cards'] = cards || null;
         const transactions = await prisma.transaction.findMany();
         ret['transactions'] = transactions || null;
-        const folder = ["users", "cards", "transactions", "logs", "config", "secrets"];
-        ret['content'] = folder;
+        ret['content'] = ["users", "cards", "transactions", "logs", "config", "secrets"];;
     }
 
     return ret;
@@ -168,6 +166,13 @@ export async function POST(request: Request) {
                 const richResult = await richResponse.json();
                 return new Response(
                     JSON.stringify({ message: { content: richResult.message } }),
+                    { status: 200, headers: { 'Content-Type': 'application/json' } }
+                );
+            case 'transactions':
+                const transactions = await prisma.transaction.findMany();
+                console.log(transactions);
+                return new Response(
+                    JSON.stringify({ message: { content: transactions } }),
                     { status: 200, headers: { 'Content-Type': 'application/json' } }
                 );
             case 'help':

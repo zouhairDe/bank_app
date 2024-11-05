@@ -34,6 +34,7 @@ interface Card {
 interface Transaction {
   id: string;
   amount: number;
+  recieverId: string;
   date: string;
   status: string;
 }
@@ -87,6 +88,60 @@ const renderTransactions = (transactions: Transaction[]) => {
   ));
 };
 
+const renderCards = (cards: Card[]) => {
+  return cards.map((card, index) => (
+    <div key={card.id} className="mb-4">
+      <div><strong>Card Number:</strong> {card.number}</div>
+      <div><strong>Card Type:</strong> {card.type}</div>
+      <div><strong>Expiry Date:</strong> {new Date(card.expiryDate).toLocaleString()}</div>
+      <div><strong>Status:</strong> {card.status}</div>
+    </div>
+  ));
+};
+
+const renderUserDetails = (user: User) => {
+  return (
+    <div className="flex flex-col flex-1">
+      <div><strong>Name:</strong> {user.name}</div>
+      <div><strong>Email:</strong> {user.email}</div>
+      <div><strong>Password:</strong> {user.password}</div>
+      <div><strong>Role:</strong> {user.role}</div>
+      <div><strong>Phone Number:</strong> {user.phoneNumber}</div>
+      <div><strong>Image:</strong> <img src={user.image} alt="User Image" className="h-16 w-16 rounded-full" /></div>
+      <div><strong>Location:</strong> {user.location}</div>
+      <div><strong>Gender:</strong> {user.gender}</div>
+      <div><strong>Provider:</strong> {user.provider}</div>
+      <div><strong>Created At:</strong> {new Date(user.createdAt).toLocaleString()}</div>
+      <div><strong>Updated At:</strong> {new Date(user.updatedAt).toLocaleString()}</div>
+      <div><strong>Balance:</strong> {user.balance}$</div>
+      <div><strong>Is Banned:</strong> {user.isBanned ? 'Yes' : 'No'}</div>
+      <div><strong>Is Verified:</strong> {user.isVerified ? 'Yes' : 'No'}</div>
+      <div><strong>Phone Number Verified:</strong> {user.phoneNumberVerified ? 'Yes' : 'No'}</div>
+      <div><strong>Data Submitted:</strong> {user.DataSubmitted ? 'Yes' : 'No'}</div>
+    </div>
+  );
+};
+
+const renderUserSection = (user: User, cards: Card[], transactions: Transaction[]) => {
+  return (
+    <div className="flex flex-row space-x-4">
+      {renderUserDetails(user)}
+      {cards.length > 0 && (
+        <div className="flex flex-col flex-1">
+          <h4 className="text-lg font-semibold mb-2">Cards</h4>
+          {renderCards(cards)}
+        </div>
+      )}
+      {transactions.length > 0 && (
+        <div className="flex flex-col flex-1">
+          <h4 className="text-lg font-semibold mb-2">Transactions</h4>
+          {renderTransactions(transactions)}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const renderContent = (content: string | string[]) => {
   if (Array.isArray(content)) {
     return (
@@ -122,69 +177,44 @@ const renderOutput = (data: CommandResponse) => {
 
   // Handle users, cards, and transactions
   if (data.message?.users) {
-    const users = data.message.users;
-    users.forEach((user: User) => {
+    data.message.users.forEach((user: User) => {
       const userCards = data.message?.cards || [];
       const userTransactions = data.message?.transactions || [];
 
-      const userDetails = (
-        <div className="flex flex-col flex-1">
-          <div><strong>Name:</strong> {user.name}</div>
-          <div><strong>Email:</strong> {user.email}</div>
-          <div><strong>Password:</strong> {user.password}</div>
-          <div><strong>Role:</strong> {user.role}</div>
-          <div><strong>Phone Number:</strong> {user.phoneNumber}</div>
-          <div><strong>Image:</strong> <img src={user.image} alt="User Image" className="h-16 w-16 rounded-full" /></div>
-          <div><strong>Location:</strong> {user.location}</div>
-          <div><strong>Gender:</strong> {user.gender}</div>
-          <div><strong>Provider:</strong> {user.provider}</div>
-          <div><strong>Created At:</strong> {new Date(user.createdAt).toLocaleString()}</div>
-          <div><strong>Updated At:</strong> {new Date(user.updatedAt).toLocaleString()}</div>
-          <div><strong>Balance:</strong> {user.balance}$</div>
-          <div><strong>Is Banned:</strong> {user.isBanned ? 'Yes' : 'No'}</div>
-          <div><strong>Is Verified:</strong> {user.isVerified ? 'Yes' : 'No'}</div>
-          <div><strong>Phone Number Verified:</strong> {user.phoneNumberVerified ? 'Yes' : 'No'}</div>
-          <div><strong>Data Submitted:</strong> {user.DataSubmitted ? 'Yes' : 'No'}</div>
-        </div>
-      );
-
-      const cardsSection = (
-        <div className="flex flex-col flex-1">
-          <h4 className="text-lg font-semibold mb-2">Cards</h4>
-          {userCards.map((card: Card) => (
-            <div key={card.id} className="mb-4">
-              <div><strong>Card Number:</strong> {card.number}</div>
-              <div><strong>Card Type:</strong> {card.type}</div>
-              <div><strong>Expiry Date:</strong> {new Date(card.expiryDate).toLocaleString()}</div>
-              <div><strong>Status:</strong> {card.status}</div>
-            </div>
-          ))}
-        </div>
-      );
-
-      const transactionsSection = (
-        <div className="flex flex-col flex-1">
-          <h4 className="text-lg font-semibold mb-2">Transactions</h4>
-          {renderTransactions(userTransactions)}
-        </div>
-      );
-
-      const combinedContent = (
-        <div className="flex flex-row space-x-4">
-          {userDetails}
-          {cardsSection}
-          {transactionsSection}
-        </div>
-      );
+      const userSection = renderUserSection(user, userCards, userTransactions);
 
       outputElements.push(
         <Card
           key={user.email}
           title={`User Profile - ${user.name}`}
-          content={combinedContent}
+          content={userSection}
         />
       );
     });
+  } else if (data.message?.cards || data.message?.transactions) {
+    // Render cards and transactions without user details
+    const cards = data.message?.cards || [];
+    const transactions = data.message?.transactions || [];
+
+    if (cards.length > 0) {
+      outputElements.push(
+        <Card
+          key="cards"
+          title="Cards"
+          content={renderCards(cards)}
+        />
+      );
+    }
+
+    if (transactions.length > 0) {
+      outputElements.push(
+        <Card
+          key="transactions"
+          title="Transactions"
+          content={renderTransactions(transactions)}
+        />
+      );
+    }
   }
 
   return outputElements;

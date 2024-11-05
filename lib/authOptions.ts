@@ -38,7 +38,7 @@ export const authOptions: NextAuthOptions = {
 	  
 			  const user = await prisma.user.findUnique({
 				where: { email: credentials.email },
-				include: { creditCards: true , transactions: true},
+				include: { creditCards: true , sentTransactions: true, receivedTransactions: true},
 			  });
 	  
 			  if (!user) {
@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
 				isBanned: user.isBanned,
 				isVerified: user.isVerified,
 				creditCards: user.creditCards,
-				transactions: user.transactions,
+				transactions: [user.sentTransactions, user.receivedTransactions],
 			  };
 			},
 		  }),
@@ -95,13 +95,11 @@ export const authOptions: NextAuthOptions = {
 					let imageLink, DisplayName;
 					// For 42 provider, handle image as an object with links
 					if (account?.provider === "42-school" && typeof profile?.image === 'object' && profile?.image?.link) {
-						console.log("Profile :", profile);
 						DisplayName = profile?.displayname;
 						imageLink = profile?.image.link;  // Primary image link for 42
 					} else {
 						imageLink = profile?.image as string;  // Standard image for other providers
 					}
-					console.log("Image Link:", imageLink);
 					await prisma.user.create({
 						data: {
 							email: email as string,
@@ -150,10 +148,9 @@ export const authOptions: NextAuthOptions = {
 		},
 	
 		async session({ session, token }) {
-			console.log("Session user email:", session.user?.email);
 			const dbUser = await prisma.user.findUnique({
 			  where: { email: session.user?.email as string },
-			  include: { creditCards: true, transactions: true },
+			  include: { creditCards: true, sentTransactions: true, receivedTransactions: true },
 			});
 		  
 			if (dbUser) {
@@ -172,7 +169,7 @@ export const authOptions: NextAuthOptions = {
 					isBanned: dbUser.isBanned,
 					isVerified: dbUser.isVerified,
 					creditCards: dbUser.creditCards,
-					transactions: dbUser.transactions,
+					transactions: [ dbUser.sentTransactions, dbUser.receivedTransactions ],
 					phoneNumberVerified: dbUser.phoneNumberVerified,
 					DataSubmitted: dbUser.DataSubmitted,
 					gender: dbUser.gender,

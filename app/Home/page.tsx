@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "@/ui/Loading";
 import { useExtendedStatus } from '@/hooks/useExtendedStatus';
+import TransactionForm from "./TransactionForm";
 
 const Home = () => {
     const { extendedStatus, session } = useExtendedStatus();
@@ -17,13 +18,13 @@ const Home = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             const data = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(data.message || response.statusText);
             }
-            
+
             console.log('Successfully deleted:', data.message);
             return data;
         } catch (error) {
@@ -96,30 +97,30 @@ const Home = () => {
             {/* Debug Buttons Section */}
             {(session?.user?.role === 'ADMIN') && (
                 <div className="container mx-auto px-4 py-4">
-                <div className="bg-gray-900 rounded-lg p-4">
-                    <h2 className="text-xl font-semibold mb-4">Debug Actions</h2>
-                    <div className="flex space-x-4">
-                        <button 
-                            onClick={FatMan}
-                            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded transition-colors"
-                        >
-                            Debug: Delete Users
-                        </button>
-                        <button 
-                            onClick={Listtheusers}
-                            className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded transition-colors"
-                        >
-                            Debug: List Users
-                        </button>
-                        <button 
-                            onClick={() => window.open('/cmd')}
-                            className="bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded transition-colors"
-                        >
-                            Bash: Open session terminal
-                        </button>
+                    <div className="bg-gray-900 rounded-lg p-4">
+                        <h2 className="text-xl font-semibold mb-4">Debug Actions</h2>
+                        <div className="flex space-x-4">
+                            <button
+                                onClick={FatMan}
+                                className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded transition-colors"
+                            >
+                                Debug: Delete Users
+                            </button>
+                            <button
+                                onClick={Listtheusers}
+                                className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded transition-colors"
+                            >
+                                Debug: List Users
+                            </button>
+                            <button
+                                onClick={() => window.open('/cmd')}
+                                className="bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded transition-colors"
+                            >
+                                Bash: Open session terminal
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
             )}
 
             {/* Main Content */}
@@ -162,8 +163,8 @@ const Home = () => {
                         <h2 className="text-xl font-semibold mb-4">Your Credit Cards</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {session.user.creditCards.map(card => (
-                                <div 
-                                    key={card.id} 
+                                <div
+                                    key={card.id}
                                     className="bg-gray-800 p-4 rounded-lg"
                                 >
                                     <p className="font-semibold">{card.holder}</p>
@@ -174,17 +175,29 @@ const Home = () => {
                                         <span>
                                             Expires: {new Date(card.expirationDate).toLocaleDateString()}
                                         </span>
-                                        <span className={`px-2 py-1 rounded text-sm ${
-                                            card.isBlocked ? 'bg-red-500' : 'bg-green-500'
-                                        }`}>
+                                        <span className={`px-2 py-1 rounded text-sm ${card.isBlocked ? 'bg-red-500' : 'bg-green-500'
+                                            }`}>
                                             {card.isBlocked ? "Blocked" : "Active"}
                                         </span>
                                     </div>
                                 </div>
                             ))}
                         </div>
+                        <div className="">
+                            <TransactionForm />
+                        </div>
                     </div>
                 )}
+                {
+                    !session?.user?.creditCards || session.user.creditCards.length === 0 && (
+                        <div className="bg-gray-900 rounded-lg p-6">
+                            <h2 className="text-xl font-semibold mb-4">Your Credit Cards</h2>
+                            <p className="text-gray-400">
+                                You have no credit cards on file.<br />Go to Cards to create one
+                            </p>
+                        </div>
+                    )
+                }
             </div>
         </div>
     );

@@ -22,7 +22,6 @@ const sendEmail = async (email: string, verificationUrl: string) => {
             templateParams
         );
 
-        console.log('Email sent successfully!', response);
     } catch (error) {
         console.error('Error sending email:', error);
         throw new Error("Failed to send verification email");

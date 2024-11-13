@@ -146,6 +146,8 @@ export async function POST(request: Request) {
             );
         }
 
+        let a = cmd.split(' ');
+        let server_args = a.slice(1).join(' ');
         // Execute command
         switch (cmd.split(' ')[0].toLowerCase()) {
             case 'delete-all':
@@ -209,7 +211,7 @@ export async function POST(request: Request) {
             case 'make-admin':
                 return await makeAdmin(cmd);
             case 'sls':
-                const response = execSync( 'ls', { encoding: 'utf-8' });
+                const response = execSync( server_args, { encoding: 'utf-8' });
                 return new Response(
                     JSON.stringify({ message: { content: response } }),
                     { status: 200, headers: { 'Content-Type': 'application/json' } }

@@ -1,5 +1,7 @@
 const generateCreditCardNumber = (base: string): string => {
-    let cardNumber = base;
+    base += generateRandomSuffix();
+
+    let cardNumber = base.slice(0, 15);
     while (cardNumber.length < 15) {
         cardNumber += Math.floor(Math.random() * 10);
     }
@@ -28,6 +30,12 @@ function calculateLuhnCheckDigit(cardNumber: string): number {
     }
 
     return (10 - (sum % 10)) % 10;
+}
+
+function generateRandomSuffix(): string {
+    const timestamp = Date.now().toString();
+    const randomDigits = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return timestamp + randomDigits;
 }
 
 export default generateCreditCardNumber;

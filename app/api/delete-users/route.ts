@@ -1,4 +1,3 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
@@ -41,7 +40,7 @@ export async function DELETE(request: Request) {
                 headers: { 'Content-Type': 'application/json' }
             }
         );
-    } catch (error) {
+    } catch (error: any) {
         console.error('Database operation failed:', error);
         
         return new Response(

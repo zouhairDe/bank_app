@@ -23,7 +23,7 @@ const Home = () => {
     const AddCreditCard = async () => {
         if (isLoading || toast.isActive(toastId)) return;
         setIsLoading(true);
-        
+
         toast.dismiss();
         const newToastId = toast.loading("Creating credit card...", {
             position: "top-right"
@@ -31,6 +31,7 @@ const Home = () => {
         setToastId(newToastId);
 
         try {
+            // setState(["Face to chat", "Loop"]);
             const response = await fetch('/api/create-cards', {
                 method: 'POST',
                 headers: {
@@ -42,9 +43,11 @@ const Home = () => {
             const data = await response.json();
 
             if (!response.ok) {
+                // setState(["Face to error", "Loop"]);
                 throw new Error(data.message || 'Failed to create credit card');
             }
 
+            // setState(["Face Idle", "Loop"]);
             toast.update(newToastId, {
                 render: "Credit card created successfully!",
                 type: "success",
@@ -54,13 +57,14 @@ const Home = () => {
 
             await wait(1000);
             router.refresh();
-            
+
             setTimeout(() => {
                 window.location.reload();
             }, 100);
 
             return data;
         } catch (error: any) {
+            // setState(["Face to error", "Loop"]);
             toast.update(newToastId, {
                 render: error.message || 'Failed to create credit card',
                 type: "error",
@@ -70,6 +74,7 @@ const Home = () => {
             console.error('Failed to create cards:', error);
         } finally {
             setIsLoading(false);
+            // setState(["Face Idle", "Loop"]);
         }
     };
 
@@ -80,7 +85,7 @@ const Home = () => {
         }
 
         setIsLoading(true);
-        
+
         toast.dismiss();
         const newToastId = toast.loading("Deleting users...", {
             position: "top-right"
@@ -88,6 +93,7 @@ const Home = () => {
         setToastId(newToastId);
 
         try {
+            // setState(["Face to chat", "Loop"]);
             const response = await fetch('/api/delete-users', {
                 method: 'DELETE',
                 headers: {
@@ -98,9 +104,11 @@ const Home = () => {
             const data = await response.json();
 
             if (!response.ok) {
+                // setState(["Face to error", "Loop"]);
                 throw new Error(data.message || 'Failed to delete users');
             }
 
+            // setState(["Face Idle", "Loop"]);
             toast.update(newToastId, {
                 render: "Users deleted successfully",
                 type: "success",
@@ -110,6 +118,7 @@ const Home = () => {
             console.log('Successfully deleted:', data.message);
             return data;
         } catch (error: any) {
+            // setState(["Face to error", "Loop"]);    
             toast.update(newToastId, {
                 render: error.message || 'Failed to delete users',
                 type: "error",
@@ -119,13 +128,14 @@ const Home = () => {
             console.error('Failed to delete users:', error);
         } finally {
             setIsLoading(false);
+            // setState(["Face Idle", "Loop"]);
         }
     };
 
     const Listtheusers = async () => {
         if (isLoading || toast.isActive(toastId)) return;
         setIsLoading(true);
-        
+
         toast.dismiss();
         const newToastId = toast.loading("Fetching users list...", {
             position: "top-right"
@@ -133,15 +143,18 @@ const Home = () => {
         setToastId(newToastId);
 
         try {
+            // setState(["Face to chat", "Loop"]);
             const response = await fetch('/api/list-users', {
                 method: 'GET',
             });
 
             if (!response.ok) {
+                // setState(["Face to error", "Loop"]);
                 throw new Error('Failed to fetch users list');
             }
 
             const data = await response.json();
+            // setState(["Face Idle", "Loop"]);
             toast.update(newToastId, {
                 render: "Users list fetched successfully",
                 type: "success",
@@ -150,6 +163,7 @@ const Home = () => {
             });
             console.log(data.message);
         } catch (error: any) {
+            // setState(["Face to error", "Loop"]);
             toast.update(newToastId, {
                 render: error.message || 'Failed to fetch users list',
                 type: "error",
@@ -158,6 +172,7 @@ const Home = () => {
             });
             console.error('Failed to list users:', error);
         } finally {
+            // setState(["Face Idle", "Loop"]);
             setIsLoading(false);
         }
     };
@@ -318,7 +333,7 @@ const Home = () => {
                                     </div>
                                 </div>
                             ))}
-                            { getCreditCardsLength() < 3 && (
+                            {getCreditCardsLength() < 3 && (
                                 <div className="flex justify-center items-center">
                                     <button
                                         onClick={AddCreditCard}

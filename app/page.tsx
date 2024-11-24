@@ -11,6 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { PiEyeClosedBold, PiEyeBold } from "react-icons/pi";
+import { useRiveState } from '../context/RiveContext';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -21,6 +22,7 @@ export default function Home() {
   const [toastId, setToastId] = useState(null as any);
   const [isSignUp, setIsSignUp] = useState(false);
   const [onPassword, setOnPassword] = useState(false);
+  const { setRiveState } = useRiveState();
 
   const buttonVariants = {
     initial: { scale: 1, rotate: 0 },
@@ -29,21 +31,22 @@ export default function Home() {
   };
 
   const handleSignIn = async () => {
+    setRiveState(["Loop", "Face to chat"]);
     if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
     setLoading(true);
-  
+
     toast.dismiss();
     const newToastId = toast.loading("Signing in...", {
       position: "top-right",
     });
     setToastId(newToastId);
-  
+
     const result = await signIn("credentials", {
       redirect: false,
       email,
       password,
     });
-  
+
     if (result?.error) {
       console.error("Error signing in:", result.error, "result code:", result.status);
       toast.update(newToastId, {
@@ -60,15 +63,16 @@ export default function Home() {
         isLoading: false,
         autoClose: 1000,
       });
-  
+
       setTimeout(() => {
         router.push("/Home");
       }, 3000);
     }
   };
-  
+
 
   const handleSignUp = async () => {
+    setRiveState(["Loop", "Face to chat"]);
     if (loading || toast.isActive(toastId)) return; // Prevent multiple clicks and new toasts if one is already active
     setLoading(true);
 
@@ -136,6 +140,7 @@ export default function Home() {
   }
 
   const handleOAuthSignIn = async (provider: string, option: number) => {
+    setRiveState(["Loop", "Face to chat"]);
     if (loading || toast.isActive(toastId)) return;
     setLoading(true);
 
@@ -316,6 +321,7 @@ export default function Home() {
     </div>
   );
 
+
   return (
     <div className="w-full h-screen flex items-center justify-center bg-[#28273f]">
       <ToastContainer />
@@ -354,8 +360,8 @@ export default function Home() {
         <button
           onClick={() => setIsSignUp(!isSignUp)}
           className={`w-60 ${!isSignUp
-              ? "translate-x-24 pr-16 translate-y-10"
-              : "-translate-x-24 pl-16 translate-y-10"
+            ? "translate-x-24 pr-16 translate-y-10"
+            : "-translate-x-24 pl-16 translate-y-10"
             } pb-8 pt-6 font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] rounded-full hover:bg-[#e2e0dc] ${loading ? "cursor-not-allowed" : ""
             }`}
           disabled={loading}
@@ -365,8 +371,8 @@ export default function Home() {
         <button
           onClick={!isSignUp ? handleSignIn : handleSignUp}
           className={`w-60 ${!isSignUp
-              ? "translate-x-16 translate-y-4"
-              : "-translate-x-16 translate-y-4"
+            ? "translate-x-16 translate-y-4"
+            : "-translate-x-16 translate-y-4"
             } font-Space_Grotesk font-bold flex-1 bg-[#F0ECE5] text-[#28273f] border-4 border-[#2a2931] py-8 rounded-full m-0 hover:bg-[#e2e0dc] ${loading ? "cursor-not-allowed" : ""
             }`}
           disabled={loading}

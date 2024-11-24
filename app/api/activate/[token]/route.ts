@@ -4,6 +4,7 @@ export async function GET(
     { params }: { params: { token: string } }
 ) {
     try {
+
         const token = params.token;
 
         if (!token) {

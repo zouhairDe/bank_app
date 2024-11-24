@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useExtendedStatus } from '@/hooks/useExtendedStatus';
 
-const TransactionForm = () => {
-  const { extendedStatus, session } = useExtendedStatus();
+const TransactionForm = ({ onTransactionComplete }: { onTransactionComplete:(e: number) => void; }) => {
+  const { session } = useExtendedStatus();
   const [amount, setAmount] = useState(0);
   const [recipient, setRecipient] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -34,12 +34,14 @@ const TransactionForm = () => {
           const data = await response.json();
           errorMessage = data.message;
         } catch (e) {
-          // If the response is not valid JSON, fallback to the response status text
           errorMessage = await response.text();
         }
         throw new Error(errorMessage);
       }
       setSuccess(true);
+      // Call the callback with the new balance
+      console.log('session.user.balance', session.user.balance);
+      onTransactionComplete?.(session.user.balance - amount);
       setError(null);
   
       // Reset the form fields

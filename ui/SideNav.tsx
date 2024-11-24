@@ -12,6 +12,7 @@ import {
     Shield
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import { useRiveState } from "@/context/RiveContext";
 
 // Separate Settings Component
 const SettingsModal = ({ isOpen, onClose }) => {
@@ -141,9 +142,11 @@ const SideNav = () => {
     const [showBackDrop, setShowBackDrop] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [activeItem, setActiveItem] = useState('profile');
+    const { setRiveState } = useRiveState();    
 
     const handleSignOut = () => {
         setShowBackDrop(true);
+        setRiveState(["Face to no internet", "Loop"]);
         setTimeout(() => {
             signOut({ callbackUrl: '/' });
             console.log('Signing out...');

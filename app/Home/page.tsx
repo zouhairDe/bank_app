@@ -7,20 +7,36 @@ import 'react-toastify/dist/ReactToastify.css';
 import Loading from "@/ui/Loading";
 import { useExtendedStatus } from '@/hooks/useExtendedStatus';
 import TransactionForm from "./TransactionForm";
+import { useRiveState } from "@/context/RiveContext";
 
 const Home = () => {
     const { extendedStatus, session } = useExtendedStatus();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [toastId, setToastId] = useState(null);
+    const { setRiveState } = useRiveState();
+    const [creditCards, setCreditCards] = useState(session?.user?.creditCards || []);
+    const [userBalance, setUserBalance] = useState(session?.user?.balance || 0);
 
-    const getCreditCardsLength = () => {
-        return session?.user?.creditCards?.length || 0;
+    useEffect(() => {
+        if (session?.user) {
+            setCreditCards(session.user.creditCards || []);
+            setUserBalance(session.user.balance || 0);
+        }
+    }, [session]);
+
+    const getCreditCardsLength = () => creditCards.length;
+    const updateLocalState = (newData) => {
+        if (newData.creditCards) {
+            setCreditCards(newData.creditCards);
+        }
+        if (newData.balance !== undefined) {
+            setUserBalance(newData.balance);
+        }
     };
 
-    const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
     const AddCreditCard = async () => {
+        setRiveState(["Face to chat", "Loop"]);
         if (isLoading || toast.isActive(toastId)) return;
         setIsLoading(true);
 
@@ -31,7 +47,6 @@ const Home = () => {
         setToastId(newToastId);
 
         try {
-            // setState(["Face to chat", "Loop"]);
             const response = await fetch('/api/create-cards', {
                 method: 'POST',
                 headers: {
@@ -43,11 +58,16 @@ const Home = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                // setState(["Face to error", "Loop"]);
+                setRiveState(["Face to error", "Loop"]);
                 throw new Error(data.message || 'Failed to create credit card');
             }
+            setRiveState(["Face Idle", "Loop"]);
 
-            // setState(["Face Idle", "Loop"]);
+            // Update local state with new credit card
+            updateLocalState({
+                creditCards: [...creditCards, data.creditCard]
+            });
+
             toast.update(newToastId, {
                 render: "Credit card created successfully!",
                 type: "success",
@@ -55,16 +75,10 @@ const Home = () => {
                 autoClose: 2000
             });
 
-            await wait(1000);
+            // Soft refresh router cache without page reload
             router.refresh();
 
-            setTimeout(() => {
-                window.location.reload();
-            }, 100);
-
-            return data;
-        } catch (error: any) {
-            // setState(["Face to error", "Loop"]);
+        } catch (error) {
             toast.update(newToastId, {
                 render: error.message || 'Failed to create credit card',
                 type: "error",
@@ -74,7 +88,7 @@ const Home = () => {
             console.error('Failed to create cards:', error);
         } finally {
             setIsLoading(false);
-            // setState(["Face Idle", "Loop"]);
+            setRiveState(["Face Idle", "Loop"]);
         }
     };
 
@@ -93,7 +107,6 @@ const Home = () => {
         setToastId(newToastId);
 
         try {
-            // setState(["Face to chat", "Loop"]);
             const response = await fetch('/api/delete-users', {
                 method: 'DELETE',
                 headers: {
@@ -104,21 +117,20 @@ const Home = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                // setState(["Face to error", "Loop"]);
                 throw new Error(data.message || 'Failed to delete users');
             }
 
-            // setState(["Face Idle", "Loop"]);
             toast.update(newToastId, {
                 render: "Users deleted successfully",
                 type: "success",
                 isLoading: false,
                 autoClose: 2000
             });
-            console.log('Successfully deleted:', data.message);
-            return data;
-        } catch (error: any) {
-            // setState(["Face to error", "Loop"]);    
+
+            // Soft refresh router cache without page reload
+            router.refresh();
+
+        } catch (error) {
             toast.update(newToastId, {
                 render: error.message || 'Failed to delete users',
                 type: "error",
@@ -128,7 +140,6 @@ const Home = () => {
             console.error('Failed to delete users:', error);
         } finally {
             setIsLoading(false);
-            // setState(["Face Idle", "Loop"]);
         }
     };
 
@@ -143,18 +154,18 @@ const Home = () => {
         setToastId(newToastId);
 
         try {
-            // setState(["Face to chat", "Loop"]);
+            setRiveState(["Face to chat", "Loop"]);
             const response = await fetch('/api/list-users', {
                 method: 'GET',
             });
 
             if (!response.ok) {
-                // setState(["Face to error", "Loop"]);
+                setRiveState(["Face to error", "Loop"]);
                 throw new Error('Failed to fetch users list');
             }
 
             const data = await response.json();
-            // setState(["Face Idle", "Loop"]);
+            setRiveState(["Face Idle", "Loop"]);
             toast.update(newToastId, {
                 render: "Users list fetched successfully",
                 type: "success",
@@ -163,7 +174,7 @@ const Home = () => {
             });
             console.log(data.message);
         } catch (error: any) {
-            // setState(["Face to error", "Loop"]);
+            setRiveState(["Face to error", "Loop"]);
             toast.update(newToastId, {
                 render: error.message || 'Failed to fetch users list',
                 type: "error",
@@ -172,7 +183,7 @@ const Home = () => {
             });
             console.error('Failed to list users:', error);
         } finally {
-            // setState(["Face Idle", "Loop"]);
+            setRiveState(["Face Idle", "Loop"]);
             setIsLoading(false);
         }
     };
@@ -216,7 +227,6 @@ const Home = () => {
 
     return (
         <div className="h-full w-full text-white">
-            {/* Toast Container - moved to top level for better visibility */}
             <ToastContainer
                 position="top-right"
                 autoClose={2000}
@@ -228,7 +238,7 @@ const Home = () => {
                 draggable
                 pauseOnHover
                 theme="dark"
-                limit={1}  // Changed to 1 since we're managing toasts more carefully now
+                limit={1}
                 style={{ zIndex: 9999 }}
             />
 
@@ -304,7 +314,7 @@ const Home = () => {
                     <div className="bg-gray-900 rounded-lg p-6">
                         <h2 className="text-xl font-semibold mb-2">Balance</h2>
                         <p className="text-3xl font-bold">
-                            ${(session?.user?.balance || 0).toFixed(2)}
+                            ${userBalance.toFixed(2)}
                         </p>
                     </div>
                 </div>
@@ -312,26 +322,29 @@ const Home = () => {
                 {/* Credit Cards Section */}
                 <div className="bg-gray-900 rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">Your Credit Cards</h2>
-                    {session?.user?.creditCards && session.user.creditCards.length > 0 ? (
+                    {creditCards.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {session.user.creditCards.map(card => (
-                                <div
-                                    key={card.id}
-                                    className="bg-gray-800 p-4 rounded-lg"
-                                >
-                                    <p className="font-semibold">{card.holder}</p>
-                                    <p className="text-gray-400">
-                                        **** **** **** {card.number.slice(-4)}
-                                    </p>
-                                    <div className="flex justify-between mt-2">
-                                        <span>
-                                            Expires: {new Date(card.expirationDate).toLocaleDateString()}
-                                        </span>
-                                        <span className={`px-2 py-1 rounded text-sm ${card.isBlocked ? 'bg-red-500' : 'bg-green-500'}`}>
-                                            {card.isBlocked ? "Blocked" : "Active"}
-                                        </span>
+                            {creditCards.map(card => (
+                                card &&
+                                (
+                                    <div
+                                        key={card.id}
+                                        className="bg-gray-800 p-4 rounded-lg"
+                                    >
+                                        <p className="font-semibold">{card.holder}</p>
+                                        <p className="text-gray-400">
+                                            **** **** **** {card.number.slice(-4)}
+                                        </p>
+                                        <div className="flex justify-between mt-2">
+                                            <span>
+                                                Expires: {new Date(card.expirationDate).toLocaleDateString()}
+                                            </span>
+                                            <span className={`px-2 py-1 rounded text-sm ${card.isBlocked ? 'bg-red-500' : 'bg-green-500'}`}>
+                                                {card.isBlocked ? "Blocked" : "Active"}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
+                                )
                             ))}
                             {getCreditCardsLength() < 3 && (
                                 <div className="flex justify-center items-center">
@@ -360,7 +373,7 @@ const Home = () => {
                         </div>
                     )}
                     <div className="mt-6">
-                        <TransactionForm />
+                        <TransactionForm onTransactionComplete={(newBalance) => setUserBalance(newBalance)} />
                     </div>
                 </div>
             </div>

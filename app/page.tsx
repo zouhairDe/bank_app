@@ -225,6 +225,7 @@ export default function Home() {
 					/>
 					<div className="relative">
 						<input
+							onKeyDown={(e) => e.key === "Enter" && !isSignUp ? handleSignIn() : handleSignUp()}
 							type={onPassword ? "text" : "password"}
 							placeholder="Password"
 							value={password}
@@ -267,6 +268,7 @@ export default function Home() {
 					/>
 					<div className="relative">
 						<input
+							onKeyDown={(e) => e.key === "Enter" && !isSignUp ? handleSignIn() : handleSignUp()}
 							type={onPassword ? "text" : "password"}
 							placeholder="Password"
 							value={password}

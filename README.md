@@ -4,10 +4,6 @@
 
 ## Description
 
-[Provide a brief description of your bank application. What is its purpose? What problem does it solve? What are its key features?]
-
-For example:
-
 > This is a web application for managing bank accounts, transactions, and user profiles. It aims to provide a simple and intuitive interface for users to track their finances. Key features include:
 >
 > * Account creation and management

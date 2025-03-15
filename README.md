@@ -79,7 +79,7 @@ For example:
 
 ## Known Issues and Missing Features
 
-* Account listing
+* Accounts&Cards listing
 * Transaction history page and other related pages
 
 ## Contributing

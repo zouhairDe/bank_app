@@ -10,7 +10,7 @@ interface messageContainer {
     type: string;
 }
 
-const page = () => {
+const ActivationPage = () => {
     const { data: session, status, update } = useSession();
     const [verurl, setVerurl] = useState<string>("");
     const [showBackdrop, setShowBackdrop] = useState(false); // Add backdrop state
@@ -67,4 +67,4 @@ const page = () => {
   )
 }
 
-export default page
+export default ActivationPage

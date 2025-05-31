@@ -177,7 +177,7 @@ export default function Home() {
 		if (status === "authenticated" || session) {
 			router.push("/Home");
 		}
-	}, [status, router]);
+	}, [status, router, session]);
 
 	if (status === "loading") {
 		return <Loading />;

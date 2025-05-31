@@ -1,0 +1,1 @@
+the rive download get s stuckfoe ever, for example when i create a new card, and also the text colors in the inputs are white which make them invisible and please fix settings component to show good --claude4

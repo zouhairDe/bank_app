@@ -1,14 +1,11 @@
 // app/layout.tsx
 "use client"
-import { Inter } from "next/font/google";
 import { useEffect } from "react";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react"
 import SessionWrapper from "./components/SessionWrapper";
 import { useRive } from '@rive-app/react-canvas';
 import { RiveProvider, useRiveState } from '../context/RiveContext';
-
-const inter = Inter({ subsets: ["latin"] });
 
 const RiveRoboCat = ({ state }: { state: string[] }) => {
     const { rive, RiveComponent } = useRive({
@@ -46,13 +43,16 @@ const RiveRoboCat = ({ state }: { state: string[] }) => {
     }, [state, rive]);
 
     return (
-        <div className='absolute w-[200px] h-[200px] top-20 right-8'>
-            <RiveComponent
-                style={{
-                    width: '100%',
-                    height: '100%',
-                }}
-            />
+        <div className='fixed w-[180px] h-[180px] top-20 right-8 z-50 pointer-events-none'>
+            <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/30 rounded-2xl p-2 shadow-2xl">
+                <RiveComponent
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '12px',
+                    }}
+                />
+            </div>
         </div>
     );
 };
@@ -71,8 +71,13 @@ export default function RootLayout({
     return (
         <SessionWrapper>
             <RiveProvider>
-                <html lang="en">
-                    <body className={inter.className}>
+                <html lang="en" className="scroll-smooth">
+                    <head>
+                        <meta name="viewport" content="width=device-width, initial-scale=1" />
+                        <title>SecureBank - Professional Banking Solutions</title>
+                        <meta name="description" content="Secure and professional banking services with modern UI/UX" />
+                    </head>
+                    <body className="font-sans antialiased">
                         <RiveStateConsumer />
                         {children}
                     </body>

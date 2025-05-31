@@ -55,6 +55,67 @@ async function listFunction(cmd: string): Promise<listRetType> {
     return ret;
 }
 
+async function deleteUser(email: string) {
+    try {
+        const user = await prisma.user.findUnique({ 
+            where: { email: email },
+            include: {
+                creditCards: true,
+                sentTransactions: true,
+                receivedTransactions: true
+            }
+        });
+        
+        if (!user) {
+            return new Response(
+                JSON.stringify({ message: 'User not found' }),
+                { status: 404, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+
+        // Use a transaction to ensure all deletions succeed or fail together
+        await prisma.$transaction(async (tx) => {
+            // Delete all transactions where user is sender (using userId field)
+            await tx.transaction.deleteMany({
+                where: { userId: user.id }
+            });
+
+            // Delete all transactions where user is receiver (using receiverId field)
+            await tx.transaction.deleteMany({
+                where: { receiverId: user.id }
+            });
+
+            // Delete all credit cards belonging to the user
+            await tx.creditCard.deleteMany({
+                where: { ownerId: user.id }
+            });
+
+            // Delete all verification tokens for the user
+            await tx.verificationToken.deleteMany({
+                where: { userId: user.id }
+            });
+
+            // Finally delete the user
+            await tx.user.delete({
+                where: { email: email }
+            });
+        });
+
+        return new Response(
+            JSON.stringify({ 
+                message: `User ${email} and all related data (${user.creditCards.length} credit cards, ${user.sentTransactions.length + user.receivedTransactions.length} transactions) deleted successfully` 
+            }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
+    } catch (error) {
+        console.error('Database operation failed:', error);
+        return new Response(
+            JSON.stringify({ message: 'Failed to delete user: ' + (error instanceof Error ? error.message : 'Unknown error') }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+}
+
 async function addMoneyToAccount(cmd: string) {
     const args = cmd.split(' ');
     const email = args[1];
@@ -216,6 +277,15 @@ export async function POST(request: Request) {
                     JSON.stringify({ message: { content: response } }),
                     { status: 200, headers: { 'Content-Type': 'application/json' } }
                 );
+            case 'delete-user':
+                const email = cmd.split(' ')[1];
+                if (!email) {
+                    return new Response(
+                        JSON.stringify({ message: { content: 'Usage: delete-user [email]' } }),
+                        { status: 400, headers: { 'Content-Type': 'application/json' } }
+                    );
+                }
+                return await deleteUser(email);
             default:
                 return new Response(
                     JSON.stringify({

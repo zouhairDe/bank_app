@@ -24,11 +24,11 @@ const Layout = ({
 		status === "loading" || !session ? (
 			<Loading />
 		) : (
-			<div className="flex h-screen w-full">
-				<div className="w-[8%] bg-gray-900 text-white">
+			<div className="flex min-h-screen w-full bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+				<div className="w-20 lg:w-64 bg-slate-900/70 backdrop-blur-lg border-r border-slate-700/50 text-white flex-shrink-0">
 					<SideNav />
 				</div>
-				<main className="flex-grow bg-[#28273f] p-4">{children}</main>
+				<main className="flex-grow overflow-auto">{children}</main>
 			</div>
 		)
 	);

@@ -2,6 +2,7 @@
 
 import { useExtendedStatus } from '@/hooks/useExtendedStatus';
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 interface User {
@@ -107,7 +108,7 @@ const renderUserDetails = (user: User) => {
       <div><strong>Password:</strong> {user.password}</div>
       <div><strong>Role:</strong> {user.role}</div>
       <div><strong>Phone Number:</strong> {user.phoneNumber}</div>
-      <div><strong>Image:</strong> <img src={user.image} alt="User Image" className="h-16 w-16 rounded-full" /></div>
+      <div><strong>Image:</strong> <Image src={user.image} alt="User Image" width={64} height={64} className="h-16 w-16 rounded-full" /></div>
       <div><strong>Location:</strong> {user.location}</div>
       <div><strong>Gender:</strong> {user.gender}</div>
       <div><strong>Provider:</strong> {user.provider}</div>
